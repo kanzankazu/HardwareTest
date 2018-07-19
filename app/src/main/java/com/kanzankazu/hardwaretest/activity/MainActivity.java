@@ -46,20 +46,13 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(PhoneSystemUtil.isRooted().equals("Allowed")){
-            Intent myIntent = new Intent(this, ClosingActivity.class);
-            startActivity(myIntent);
-            finish();
-        }
-        else {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-            initComponent();
-            initContent();
-            initListener();
-            initPermissions();
-        }
+        initComponent();
+        initContent();
+        initListener();
+        initPermissions();
     }
 
     private void initComponent() {
