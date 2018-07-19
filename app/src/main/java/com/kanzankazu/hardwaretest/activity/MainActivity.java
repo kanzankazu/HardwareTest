@@ -276,7 +276,7 @@ public class MainActivity extends LocalBaseActivity {
                     if (HardwareCheckUtil.isBluetoothAvailable()) {
                         checkWifi();
                     } else {
-                        if (HardwareCheckUtil.isBluetoothOnOff(true)) {
+                        if (HardwareCheckUtil.isBluetoothOnOff(MainActivity.this, true)) {
                             checkWifi();
                         } else {
                             checkWifi();
