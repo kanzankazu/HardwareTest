@@ -17,12 +17,14 @@ import android.hardware.SensorManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.location.LocationManager;
 import android.media.MediaRecorder;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -59,9 +61,11 @@ public class HardwareCheckUtil {
         }
         /*if (bluetoothAdapter.isEnabled()) {
             bluetoothAdapter.disable();
+            Toast.makeText(context, "Bluetooth Off", Toast.LENGTH_SHORT).show();
             return true;
         } else {
             bluetoothAdapter.enable();
+            Toast.makeText(context, "Bluetooth On", Toast.LENGTH_SHORT).show();
             return true;
         }*/
     }
@@ -145,6 +149,72 @@ public class HardwareCheckUtil {
         }
     }
 
+    public static boolean isHasMData(Context context) {
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);  //gets the current TelephonyManager
+        return !(tm.getSimState() == TelephonyManager.SIM_STATE_ABSENT);
+    }
+
+    public static boolean isMDataSimAvailable(Activity activity) {
+        boolean isAvailable = false;
+        TelephonyManager telMgr = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+        int simState = telMgr.getSimState();
+        switch (simState) {
+            case TelephonyManager.SIM_STATE_ABSENT: //SimState = “No Sim Found!”;
+                isAvailable = false;
+                break;
+            case TelephonyManager.SIM_STATE_NETWORK_LOCKED: //SimState = “Network Locked!”;
+                isAvailable = false;
+                break;
+            case TelephonyManager.SIM_STATE_PIN_REQUIRED: //SimState = “PIN Required to access SIM!”;
+                isAvailable = false;
+                break;
+            case TelephonyManager.SIM_STATE_PUK_REQUIRED: //SimState = “PUK Required to access SIM!”; // Personal Unblocking Code
+                isAvailable = false;
+                break;
+            case TelephonyManager.SIM_STATE_READY:
+                isAvailable = true;
+                break;
+            case TelephonyManager.SIM_STATE_UNKNOWN: //SimState = “Unknown SIM State!”;
+                isAvailable = false;
+                break;
+        }
+        return isAvailable;
+    }
+
+    public static boolean isMDataAvailable(final Activity context) {
+        boolean mobileDataEnabled = false;
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        try {
+            Class cmClass = Class.forName(cm.getClass().getName());
+            Method method = cmClass.getDeclaredMethod("getMobileDataEnabled");
+            method.setAccessible(true);
+
+            mobileDataEnabled = (Boolean) method.invoke(cm);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mobileDataEnabled;
+    }
+
+    public static boolean isMDataOnOff(final Context context) {
+        String provider = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (provider.contains("gps")) { //if gps is enabled
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            context.sendBroadcast(poke);
+            return true;
+        } else {
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            context.sendBroadcast(poke);
+            return true;
+        }
+    }
+
     public static boolean isHasNFC(Context context) {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_NFC);
     }
@@ -160,7 +230,7 @@ public class HardwareCheckUtil {
         return enabled;
     }
 
-    public static void isNFCOnOff(final Context context, Boolean enabled) {
+    public static boolean isNFCOnOff(final Context context, Boolean enabled) {
         // Turn NFC on/off
         final boolean desiredState = enabled;
         final NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(context);
@@ -211,11 +281,33 @@ public class HardwareCheckUtil {
                 }
             }
         }.start();
-        //return false;
+
+        if (desiredState) {
+            return true;
+        } else {
+            return true;
+        }
     }
 
-    public static void checkSensorProximity() {
+    public static boolean checkSensor(Context context, String sensorname, String packManSensorName, int typeSensor) {
 
+        PackageManager packageManager = context.getPackageManager();
+        boolean sensorExists = packageManager.hasSystemFeature(packManSensorName);
+
+        SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        Sensor sensor = sensorManager.getDefaultSensor(typeSensor);
+
+        if (sensorExists) {
+            if (sensor != null) {
+                return true;
+            } else {
+                Toast.makeText(context.getApplicationContext(), "No " + sensorname + " Sensor!", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        } else {
+            Toast.makeText(context.getApplicationContext(), "Sensor " + sensorname + " No Exist", Toast.LENGTH_LONG).show();
+            return false;
+        }
     }
 
     public static void checkSensorLight(Context context) {
@@ -246,12 +338,10 @@ public class HardwareCheckUtil {
 
     public static void checkSensorProximity(Context context) {
         SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        if (lightSensor == null) {
-            Toast.makeText(context.getApplicationContext(), "No Proximity Sensor! quit-", Toast.LENGTH_LONG).show();
+        Sensor proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        if (proximity == null) {
+            Toast.makeText(context.getApplicationContext(), "No Proximity Sensor!", Toast.LENGTH_LONG).show();
         } else {
-            final boolean[] state = new boolean[1];
-            float max = lightSensor.getMaximumRange();
             SensorEventListener sensorListener = new SensorEventListener() {
                 int a = 0, b = 0;
 
@@ -276,7 +366,7 @@ public class HardwareCheckUtil {
 
                 }
             };
-            sensorManager.registerListener(sensorListener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(sensorListener, proximity, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 

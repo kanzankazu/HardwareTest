@@ -2,7 +2,13 @@ package com.kanzankazu.hardwaretest.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,11 +18,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
-import com.kanzankazu.hardwaretest.database.Check;
-import com.kanzankazu.hardwaretest.database.SQLiteHelper;
 import com.kanzankazu.hardwaretest.model.ui.CheckModel;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
 import com.kanzankazu.hardwaretest.util.PhoneSystemUtil;
@@ -27,14 +30,19 @@ import java.util.List;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-public class MainActivity extends LocalBaseActivity {
+public class MainActivity extends LocalBaseActivity implements SensorEventListener {
 
+    private static final int KEY_INTENT_PROXIMITY = 123123;
     private TextView tvMainInfofvbi;
     private RecyclerView rvMainfvbi;
     private ProgressBar pbMainfvbi;
     private Button bMainTesfvbi;
     private MainCheckAdapter mainCheckAdapter;
-    private Dialog dialogCheckSystem;
+    private Dialog dialogCheckSystem, dialogCheckAccelerometers, dialogCheckProximitys;
+    private SensorManager sensorManager;
+    private boolean isSensorAccelerometer;
+    private boolean isSensorProximity;
+    private List<Integer> connListStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +85,9 @@ public class MainActivity extends LocalBaseActivity {
         mainCheckAdapter.addModel(new CheckModel(6, "Kamera Depan & Belakang"));
         mainCheckAdapter.addModel(new CheckModel(7, "Layar Sentuh"));
         mainCheckAdapter.notifyDataSetChanged();
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
     }
 
     private void initListener() {
@@ -229,10 +240,27 @@ public class MainActivity extends LocalBaseActivity {
         pbMainfvbi.setProgress(0);
     }
 
+    /*private void setProgresCheck(int i) {
+        if (i == 1) {
+            mainCheckAdapter.updateModelAt(i, CheckModel.CHECKING);
+            mainCheckAdapter.notifyDataSetChanged();
+            pbMainfvbi.setProgress(100 / 7 * i);
+            dialogCheckSystems();
+        } else if (i > 1 && i <= 7) {
+            mainCheckAdapter.updateModelAt(i - 1, CheckModel.CHECK_DONE);
+            mainCheckAdapter.updateModelAt(i, CheckModel.CHECKING);
+            mainCheckAdapter.notifyDataSetChanged();
+            pbMainfvbi.setProgress(100 / 7 * i);
+        } else if (i > 7) {
+            Toast.makeText(getApplicationContext(), "Check Done", Toast.LENGTH_SHORT).show();
+        }
+    }*/
+
     private void doCheck() {
         doCheckSystem();
     }
 
+    //check system hardware
     private void doCheckSystem() {
         mainCheckAdapter.updateModelAt(1, CheckModel.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
@@ -270,6 +298,7 @@ public class MainActivity extends LocalBaseActivity {
         dialogCheckSystem.getWindow().setAttributes(layoutparams);
     }
 
+    //check Connection
     private void doCheckConnection() {
         mainCheckAdapter.updateModelAt(1, CheckModel.CHECK_DONE);
         mainCheckAdapter.updateModelAt(2, CheckModel.CHECKING);
@@ -277,6 +306,7 @@ public class MainActivity extends LocalBaseActivity {
         pbMainfvbi.setProgress(100 / 7 * 2);
 
         checkBluetooth();
+        connListStatus = new ArrayList<Integer>();
     }
 
     private void checkBluetooth() {
@@ -286,15 +316,19 @@ public class MainActivity extends LocalBaseActivity {
                 if (HardwareCheckUtil.ishasBluetooth(MainActivity.this)) {
                     if (HardwareCheckUtil.isBluetoothAvailable()) {
                         checkWifi();
+                        connListStatus.add(CheckModel.CHECK_DONE);
                     } else {
                         if (HardwareCheckUtil.isBluetoothOnOff(MainActivity.this, true)) {
                             checkWifi();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         } else {
                             checkWifi();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         }
                     }
                 } else {
                     checkWifi();
+                    connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
         }, 2000);
@@ -307,15 +341,19 @@ public class MainActivity extends LocalBaseActivity {
                 if (HardwareCheckUtil.isHasWIFI(MainActivity.this)) {
                     if (HardwareCheckUtil.isWifiAvailable(MainActivity.this)) {
                         checkGPS();
+                        connListStatus.add(CheckModel.CHECK_DONE);
                     } else {
                         if (HardwareCheckUtil.isWifiOnOff(MainActivity.this)) {
                             checkGPS();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         } else {
                             checkGPS();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         }
                     }
                 } else {
                     checkGPS();
+                    connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
         }, 2000);
@@ -327,20 +365,199 @@ public class MainActivity extends LocalBaseActivity {
                 //code here
                 if (HardwareCheckUtil.isHasGPS(MainActivity.this)) {
                     if (HardwareCheckUtil.isGPSAvailable(MainActivity.this)) {
-                        resetState();
+                        checkData();
+                        connListStatus.add(CheckModel.CHECK_DONE);
                     } else {
                         if (HardwareCheckUtil.isGPSOnOff(MainActivity.this)) {
-                            resetState();
+                            checkData();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         } else {
-                            resetState();
+                            checkData();
+                            connListStatus.add(CheckModel.CHECK_DONE);
                         }
                     }
                 } else {
-                    resetState();
+                    checkData();
+                    connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
         }, 2000);
     }
 
+    private void checkData() {
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                //code here
+                if (HardwareCheckUtil.isHasMData(MainActivity.this)) {
+                    if (HardwareCheckUtil.isMDataSimAvailable(MainActivity.this)) {
+                        if (HardwareCheckUtil.isMDataAvailable(MainActivity.this)) {
+                            checkNFC();
+                            connListStatus.add(CheckModel.CHECK_DONE);
+                        } else {
+                            checkNFC();
+                            connListStatus.add(CheckModel.CHECK_DONE);
+                        }
+                    } else {
+                        checkNFC();
+                        connListStatus.add(CheckModel.CHECK_ERROR);
+                    }
+                } else {
+                    checkNFC();
+                    connListStatus.add(CheckModel.CHECK_ERROR);
+                }
+            }
+        }, 2000);
+    }
 
+    private void checkNFC() {
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                //code here
+                if (HardwareCheckUtil.isHasNFC(MainActivity.this)) {
+                    if (HardwareCheckUtil.isNFCAvailable(MainActivity.this)) {
+                        if (HardwareCheckUtil.isNFCOnOff(MainActivity.this, true)) {
+                            doCheckSensor();
+                            connListStatus.add(CheckModel.CHECK_DONE);
+                        } else {
+                            doCheckSensor();
+                            connListStatus.add(CheckModel.CHECK_DONE);
+                        }
+                    } else {
+                        doCheckSensor();
+                        connListStatus.add(CheckModel.CHECK_ERROR);
+                    }
+                } else {
+                    doCheckSensor();
+                    connListStatus.add(CheckModel.CHECK_ERROR);
+                }
+            }
+        }, 2000);
+    }
+
+    //check sensor
+    private void doCheckSensor() {
+        /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
+        if (ListArrayUtil.isIntArrayContainInt(ints, CheckModel.CHECK_ERROR)) {
+            mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_ERROR);
+        } else {
+            mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_DONE);
+        }*/
+        mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_DONE);
+        mainCheckAdapter.updateModelAt(3, CheckModel.CHECKING);
+        mainCheckAdapter.notifyDataSetChanged();
+        pbMainfvbi.setProgress(100 / 7 * 3);
+
+        checkAccelerometer();
+    }
+
+    private void checkAccelerometer() {
+        if (HardwareCheckUtil.checkSensor(MainActivity.this, "Accelerometer", PackageManager.FEATURE_SENSOR_ACCELEROMETER, Sensor.TYPE_ACCELEROMETER)) {
+            Intent intent = new Intent(MainActivity.this, ProxActivity.class);
+            startActivityForResult(intent, KEY_INTENT_PROXIMITY);
+            //overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+        } else {
+            checkProximity();
+        }
+    }
+
+    private void dialogCheckAccelerometer() {
+        dialogCheckAccelerometers = new Dialog(MainActivity.this);
+        dialogCheckAccelerometers.setContentView(R.layout.popchecksystem);
+        dialogCheckAccelerometers.setTitle("");
+
+        WindowManager.LayoutParams layoutparams = new WindowManager.LayoutParams();
+        layoutparams.copyFrom(dialogCheckAccelerometers.getWindow().getAttributes());
+        layoutparams.width = WindowManager.LayoutParams.MATCH_PARENT;//ukuran lebar layout
+        layoutparams.height = WindowManager.LayoutParams.WRAP_CONTENT;//ukuran tinggi layout
+
+        // set the custom dialogCheckAccelerometers components - text, image and button
+        //CheckAccelerometers = () dialogCheckAccelerometers.findViewById(R.id.);
+        TextView tvPopCheckAccelerometers = (TextView) dialogCheckSystem.findViewById(R.id.tvPopCheckSystem);
+        Button bPopCheckAccelerometers = (Button) dialogCheckSystem.findViewById(R.id.bPopCheckSystem);
+
+        tvPopCheckAccelerometers.setText("Gerakan HP anda!");
+        bPopCheckAccelerometers.setVisibility(View.GONE);
+
+        isSensorAccelerometer = true;
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+
+        dialogCheckAccelerometers.show();
+        dialogCheckAccelerometers.getWindow().setAttributes(layoutparams);
+    }
+
+    private void checkProximity() {
+        if (HardwareCheckUtil.checkSensor(MainActivity.this, "Proximity", PackageManager.FEATURE_SENSOR_PROXIMITY, Sensor.TYPE_PROXIMITY)) {
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
+            isSensorProximity = true;
+
+            dialogCheckProximity();
+        } else {
+            resetState();
+        }
+    }
+
+    private void dialogCheckProximity() {
+        dialogCheckProximitys = new Dialog(MainActivity.this);
+        dialogCheckProximitys.setContentView(R.layout.popchecksystem);
+        dialogCheckProximitys.setTitle("");
+
+        WindowManager.LayoutParams layoutparams = new WindowManager.LayoutParams();
+        layoutparams.copyFrom(dialogCheckProximitys.getWindow().getAttributes());
+        layoutparams.width = WindowManager.LayoutParams.MATCH_PARENT;//ukuran lebar layout
+        layoutparams.height = WindowManager.LayoutParams.WRAP_CONTENT;//ukuran tinggi layout
+
+        // set the custom dialogCheckProximitys components - text, image and button
+        //CheckAccelerometers = () dialogCheckProximitys.findViewById(R.id.);
+        TextView tvPopCheckAccelerometers = (TextView) dialogCheckSystem.findViewById(R.id.tvPopCheckSystem);
+        Button bPopCheckAccelerometers = (Button) dialogCheckSystem.findViewById(R.id.bPopCheckSystem);
+
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        isSensorAccelerometer = true;
+
+        tvPopCheckAccelerometers.setText("Gerakan Tangan anda di atas HP anda!");
+        bPopCheckAccelerometers.setVisibility(View.GONE);
+
+        dialogCheckProximitys.show();
+        dialogCheckProximitys.getWindow().setAttributes(layoutparams);
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (isSensorAccelerometer) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+
+                float x = sensorEvent.values[0];
+                float y = sensorEvent.values[1];
+                float z = sensorEvent.values[2];
+
+                float diff = (float) Math.sqrt(x * x + y * y + z * z);
+                if (diff > 0.5) {//TODO 0.5 is a threshold, you can test it and change it
+                    isSensorAccelerometer = false;
+                    dialogCheckAccelerometers.dismiss();
+                    checkProximity();
+                }
+            }
+        } else if (isSensorProximity) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                    int a = 0, b = 0;
+                    if (sensorEvent.values[0] == 0) {
+                        a++;
+                    } else {
+                        b++;
+                    }
+                    if (a > 2 && b > 2) {
+                        isSensorProximity = false;
+
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
 }

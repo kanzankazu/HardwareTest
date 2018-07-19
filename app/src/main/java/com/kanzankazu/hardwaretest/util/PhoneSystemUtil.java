@@ -19,11 +19,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.Toast;
-
-import com.kanzankazu.hardwaretest.activity.MainActivity;
-import com.kanzankazu.hardwaretest.database.Check;
-import com.kanzankazu.hardwaretest.database.SQLiteHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,68 +37,36 @@ import java.util.regex.Pattern;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.support.constraint.Constraints.TAG;
 import static java.util.jar.Pack200.Packer.ERROR;
 
-public class PhoneSystemUtil extends Activity{
-    private Check check;
+public class PhoneSystemUtil {
 
     public static String getDataPhone(Activity activity) {
-        return  "Device Model : "                   + getPhoneModel()//getManufacture() + " " + getManufactureModel()
-                + "\n Android Version  : "          + getOSAndroid()
-                + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
-                + "\n Board : "                     + getCPUManufacture()
-                // + " " + getCPUFreq()
-                + "\n Serial Number : "             + getSerialnumberBoard()
-                + "\n Kernel Version : "            + getKernelVersion()
-                // + "\n Builder : " + getBuilderVersion()
-                // + "\n Bootloader Version : " + getBootloaderVersion()
-                + "\n IMEI Number : "               + getImeiNumber(activity)
-                + "\n IMEI SV : "                   + getImeiSV(activity)
-                + "\n Operator Name : "             + getOperatorName(activity)
-                + "\n Mobile Network : "            + getDataState(activity)
-                + "\n Root Permission : "           + isRooted()
-                + "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
-                + "\n Screen DPI : "                + getScreenInfo("dpi",activity)
-                + "\n Screen Size : "               + getScreenInfo("size",activity)
-                + "\n Internal Memory Size : "      + getTotalInternalMemorySize()
-                //+ "\n External Memory Size : "      + getTotalExternalMemorySize()
-                + "\n" + String.valueOf()
-                + "\n "+ checkBattery(activity)
-                // + "\n Battery Health : " + checkBattery(activity)
-                // + "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
-                // + "\n Screen Size : " + String.format("%.2f", screensize) + "inch"
+        return "Device Model : " + getManufacture() + " " + getManufactureModel()
+                + "\n Android Version  : " + getOSAndroid() + ", " + getOSAndroidVersion()
+                + "\n Current Security Patch : " + getOSAndroidVersionSecurityPatch()
+                + "\n Board : " + getCPUManufacture() + " " + getCPUFreq()
+                + "\n Serial Number : " + getSerialnumberBoard()
+                + "\n Kernel Version : " + getKernelVersion()
+                + "\n Builder : " + getBuilderVersion()
+                + "\n Bootloader Version : " + getBootloaderVersion()
+                + "\n IMEI Number : " + getImeiNumber(activity)
+                + "\n IMEI SV : " + getImeiSV(activity)
+                + "\n Operator Name : " + getOperatorName(activity)
+                + "\n Mobile Network : " + getDataState(activity)
+                + "\n Root Permission : " + isRooted()
+                //+ "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
+                //+ "\n Screen Size : " + String.format("%.2f", screensize) + "inch"
                 ;
     }
 
-    private static String getPhoneModel() {
-        Process p = null;
-        String phone_model = "";
-        if (Build.MANUFACTURER.equals("Sony")) {
-            try {
-                p = new ProcessBuilder("/system/bin/getprop", "ro.semc.product.name").redirectErrorStream(true).start();
-                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = "";
-                while ((line = br.readLine()) != null) {
-                    phone_model = line;
-                }
-                p.destroy();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            phone_model = Build.MODEL;
-        }
-        return Build.MANUFACTURER + " " + phone_model;
-    }
-
-/*    private static String getManufacture() {
+    private static String getManufacture() {
         return Build.MANUFACTURER;
     }
 
     private static String getManufactureModel() {
         return Build.MODEL;
-    }*/
+    }
 
     private static String getOSAndroid() {
         String[] AndroidNameList = {
@@ -111,56 +74,53 @@ public class PhoneSystemUtil extends Activity{
                 "Eclair", "Eclair", "Froyo", "Gingerbread", "Gingerbread",
                 "Honeycomb", "Honeycomb", "Honeycomb", "Ice Cream Sandwich", "Ice Cream Sandwich",
                 "Jellybean", "Jellybean", "Jellybean", "Kitkat", "Kitkat",
-                "Lolipop", "Lolipop", "Marshmallow", "Nougat", "Nougat",
+                "Lolipop", "Lolipop", "Marshmello", "Nougat", "Nougat",
                 "Oreo", "Oreo", "Android P"};
-        return "Android " + AndroidNameList[Build.VERSION.SDK_INT - 1] + ", " + Build.VERSION.RELEASE;
+
+        return AndroidNameList[Build.VERSION.SDK_INT - 1];
     }
 
-/*    private static String getOSAndroidVersion() {
+    private static String getOSAndroidVersion() {
         return Build.VERSION.RELEASE;
-    }*/
+    }
 
     private static String getOSAndroidVersionSecurityPatch() {
         return Build.VERSION.SECURITY_PATCH;
     }
 
     private static String getCPUManufacture() {
-        String devicesoc = null;
-        if (Build.HARDWARE.equals("qcom")) {
-            devicesoc = "Qualcomm " + Build.BOARD;
+        String hardware = Build.HARDWARE;
+        if (hardware.equals("qcom")) {
+            hardware = "Qualcomm";
         } else {
-            devicesoc = Build.HARDWARE + " " +Build.BOARD;
+            hardware = "Mediatek";
         }
-        return devicesoc;
+
+        return hardware + " " + Build.BOARD;
     }
 
-/*    @SuppressLint("LongLogTag")
+    @SuppressLint("LongLogTag")
     private static String getCPUFreq() {
-        String z =  null;
+        String lay = null;
         try {
-            Process x[] = {
-                    Runtime.getRuntime().exec("cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"),
-                    Runtime.getRuntime().exec("cat /sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_max_freq"),
-            };
-            InputStream is[] = {null, null};
-            String a[] = {};
-            for (int i = 0; i < 2; i++) {
-                if (x[i].waitFor() == 0) {
-                    is[i] = x[i].getInputStream();
-                } else {
-                    is[i] = x[i].getErrorStream();
-                }
-                a[i] = new BufferedReader(new InputStreamReader(is[i])).readLine();
-                new BufferedReader(new InputStreamReader(is[i])).close();
+            Process p = Runtime.getRuntime().exec("cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+            InputStream is = null;
+            if (p.waitFor() == 0) {
+                is = p.getInputStream();
+            } else {
+                is = p.getErrorStream();
             }
-            z=a[0];
-            Log.d("CPU info",z);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            lay = br.readLine();
+
+            Log.i("CPU info", lay);
+            br.close();
         } catch (Exception ex) {
             Log.d("Lihat onCreate PhoneSystemUtil", ex.getMessage());
         }
-        return String.format("%.2f", Float.valueOf(z) / 1000000) + " GHz";
-    }*/
 
+        return String.format("%.2f", Float.valueOf(lay) / 1000000) + " GHz";
+    }
 
     private static String getSerialnumberBoard() {
         return Build.SERIAL;
@@ -170,7 +130,7 @@ public class PhoneSystemUtil extends Activity{
     private static String getKernelVersion() {
         String line = null;
         try {
-            Process p = Runtime.getRuntime().exec("cat /proc/version");
+            Process p = Runtime.getRuntime().exec("uname -r");
             InputStream is = null;
             if (p.waitFor() == 0) {
                 is = p.getInputStream();
@@ -187,7 +147,7 @@ public class PhoneSystemUtil extends Activity{
         return line;
     }
 
-/*    private static String getBuilderVersion() {
+    private static String getBuilderVersion() {
         return Build.USER + "@" + Build.HOST;
 
     }
@@ -195,18 +155,11 @@ public class PhoneSystemUtil extends Activity{
     private static String getBootloaderVersion() {
         return Build.BOOTLOADER;
     }
-    */
 
     @SuppressLint("MissingPermission")
     private static String getImeiNumber(Activity activity) {
         TelephonyManager mTelephonyManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-        @SuppressLint({"NewApi", "LocalSuppress"})
-        String imei = mTelephonyManager.getImei(0)+", "
-                    + mTelephonyManager.getImei(1)+", "
-                    + mTelephonyManager.getImei(2)+", "
-                    + mTelephonyManager.getImei(3)+", "
-                    + mTelephonyManager.getImei(4);
-        return imei.replace(", null", "");
+        return mTelephonyManager.getDeviceId();
     }
 
     @SuppressLint("MissingPermission")
@@ -315,8 +268,8 @@ public class PhoneSystemUtil extends Activity{
         return datastate;
     }
 
-    public static String isRooted() {
-        String rootstate = "Not Allowed";
+    public static boolean isRooted() {
+        boolean rootstate = false;
         String[] paths = {
                 "/system/app/Superuser.apk",
                 "/sbin/su",
@@ -330,88 +283,43 @@ public class PhoneSystemUtil extends Activity{
                 "/su/bin/su"
         };
         for (String path : paths) {
-            if (new File(path).exists()) {
-                rootstate = "Allowed";
-            }
+            rootstate = new File(path).exists();
         }
         return rootstate;
     }
 
-    public static String getScreenInfo(String a,Activity activity){
-        String screenresolution,screensize,screendpi=null;
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
-
-        int heightPixels = metrics.heightPixels;
-        int widthPixels = metrics.widthPixels;
-
-        float xdpi = widthPixels / metrics.xdpi;
-        float ydpi = heightPixels / metrics.ydpi;
-
-        float x = (float) Math.pow(xdpi, 2);
-        float y = (float) Math.pow(ydpi, 2);
-
-        float screensizenofullscreen = (float) Math.sqrt(x + y);
-
-        screenresolution = String.valueOf(heightPixels) + "x" + String.valueOf(widthPixels) + " pixels";
-        screensize = String.format("%.1f",Float.valueOf(screensizenofullscreen)) + " inch";
-        screendpi = String.valueOf(metrics.densityDpi)+ " DPI";
-
-        if (a.equals("resolution")){
-            a = screenresolution;
-        }
-        else if(a.equals("dpi")){
-            a = screendpi;
-        }
-        else if(a.equals("size")){
-            a = screensize;
-        }
-
-        return  a;
-    }
-
-    public static String checkBattery(Activity activity) {
-        final String[] health = {null};
+    public static void checkBattery(Activity activity) {
         IntentFilter intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         BroadcastReceiver broadcastreceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int status = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, 0);
                 if (status == BatteryManager.BATTERY_HEALTH_COLD) {
-                    health[0] ="COLD";
                     //textview.setText("Battery health = Cold");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_DEAD) {
-                    health[0] ="DEAD";
-
                     //textview.setText("Battery health = Dead");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_GOOD) {
-                    health[0] ="GOOD";
                     //textview.setText("Battery health = Good");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_OVERHEAT) {
-                    health[0] ="OVERHEAT";
                     //textview.setText("Battery health = Over Heat");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE) {
-                    health[0] ="OVER VOLTAGE";
                     //textview.setText("Battery health = Over Voltage");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_UNKNOWN) {
-                    health[0] ="UNKNOWN";
                     //textview.setText("Battery health = Unknown");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE) {
-                    health[0] ="UNSPECIFIED FAILURE";
                     //textview.setText("Battery health = Unspecified failure");
                 }
+
 
             }
         };
         activity.registerReceiver(broadcastreceiver, intentfilter);
-        return health[0];
     }
 
     @SuppressLint({"NewApi", "LongLogTag"})
@@ -877,7 +785,7 @@ public class PhoneSystemUtil extends Activity{
 
     }
 
-    public int getNumberOfCores() {
+    private int getNumberOfCores() {
         if(Build.VERSION.SDK_INT >= 17) {
             return Runtime.getRuntime().availableProcessors();
         }
@@ -892,8 +800,7 @@ public class PhoneSystemUtil extends Activity{
      * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
      * @return The number of cores, or 1 if failed to get result
      */
-
-    public int getNumCoresOldPhones() {
+    private int getNumCoresOldPhones() {
         //Private Class to display only CPU devices in the directory listing
         class CpuFilter implements FileFilter {
             @Override
@@ -917,48 +824,6 @@ public class PhoneSystemUtil extends Activity{
             //Default to return 1 core
             return 1;
         }
-
     }
-/*    public void setMobileDataState(boolean mobileDataEnabled)
-    {
-        try
-        {
-            TelephonyManager telephonyService = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-            Method setMobileDataEnabledMethod = telephonyService.getClass().getDeclaredMethod("setDataEnabled", boolean.class);
-
-            if (null != setMobileDataEnabledMethod)
-            {
-                setMobileDataEnabledMethod.invoke(telephonyService, mobileDataEnabled);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.e(TAG, "Error setting mobile data state", ex);
-        }
-    }
-
-    public boolean getMobileDataState()
-    {
-        try
-        {
-            TelephonyManager telephonyService = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-            Method getMobileDataEnabledMethod = telephonyService.getClass().getDeclaredMethod("getDataEnabled");
-
-            if (null != getMobileDataEnabledMethod)
-            {
-                boolean mobileDataEnabled = (Boolean) getMobileDataEnabledMethod.invoke(telephonyService);
-
-                return mobileDataEnabled;
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.e(TAG, "Error getting mobile data state", ex);
-        }
-
-        return false;
-    }*/
 
 }
