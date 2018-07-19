@@ -42,21 +42,31 @@ import static java.util.jar.Pack200.Packer.ERROR;
 public class PhoneSystemUtil {
 
     public static String getDataPhone(Activity activity) {
-        return "Device Model : " + getManufacture() + " " + getManufactureModel()
-                + "\n Android Version  : " + getOSAndroid() + ", " + getOSAndroidVersion()
-                + "\n Current Security Patch : " + getOSAndroidVersionSecurityPatch()
-                + "\n Board : " + getCPUManufacture() + " " + getCPUFreq()
-                + "\n Serial Number : " + getSerialnumberBoard()
-                + "\n Kernel Version : " + getKernelVersion()
-                + "\n Builder : " + getBuilderVersion()
-                + "\n Bootloader Version : " + getBootloaderVersion()
-                + "\n IMEI Number : " + getImeiNumber(activity)
-                + "\n IMEI SV : " + getImeiSV(activity)
-                + "\n Operator Name : " + getOperatorName(activity)
-                + "\n Mobile Network : " + getDataState(activity)
-                + "\n Root Permission : " + isRooted()
-                //+ "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
-                //+ "\n Screen Size : " + String.format("%.2f", screensize) + "inch"
+        return  "Device Model : "                   + getPhoneModel()//getManufacture() + " " + getManufactureModel()
+                + "\n Android Version  : "          + getOSAndroid()
+                + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
+                + "\n Board : "                     + getCPUManufacture()
+                // + " " + getCPUFreq()
+                + "\n Serial Number : "             + getSerialnumberBoard()
+                + "\n Kernel Version : "            + getKernelVersion()
+                // + "\n Builder : " + getBuilderVersion()
+                // + "\n Bootloader Version : " + getBootloaderVersion()
+                + "\n IMEI Number : "               + getImeiNumber(activity)
+                + "\n IMEI SV : "                   + getImeiSV(activity)
+                + "\n Operator Name : "             + getOperatorName(activity)
+                + "\n Mobile Network : "            + getDataState(activity)
+                + "\n Root Permission : "           + isRooted()
+                + "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
+                + "\n Screen DPI : "                + getScreenInfo("dpi",activity)
+                + "\n Screen Size : "               + getScreenInfo("size",activity)
+                + "\n RAM Size : "                  + getTotalRam()
+                + "\n Internal Memory Size : "      + getTotalInternalMemorySize()
+                + "\n Front Camera Resolution : "   + getCameraResolutionInMp("front")
+                + "\n Rear Camera Resolution : "    + getCameraResolutionInMp("rear")
+                //+ "\n External Memory Size : "      + getTotalExternalMemorySize()
+                // + "\n Battery Health : " + checkBattery(activity)
+                // + "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
+                // + "\n Screen Size : " + String.format("%.2f", screensize) + "inch"
                 ;
     }
 
@@ -322,7 +332,29 @@ public class PhoneSystemUtil {
         activity.registerReceiver(broadcastreceiver, intentfilter);
     }
 
-    @SuppressLint({"NewApi", "LongLogTag"})
+    public static String getTotalRam() {
+        // Read Size of RAM
+        String totalram = null;
+        String totalramkb = null;
+        String totalramgb = null;
+        try {
+            Process p = Runtime.getRuntime().exec("cat /proc/meminfo");
+            InputStream is = null;
+            if (p.waitFor() == 0) {
+                is = p.getInputStream();
+            } else {
+                is = p.getErrorStream();
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            totalramkb = br.readLine().replace("MemTotal:      ", "");
+            totalramgb = String.valueOf(Float.valueOf(totalramkb.replace(" kB", "")) / 1048576.0);
+            totalram = String.format("%.1f", Float.valueOf(totalramgb)) + " GB";
+            br.close();
+        } catch (Exception ex) {
+        }
+        return totalram;
+    }
+/*    @SuppressLint({"NewApi", "LongLogTag"})
     private void getFullScreenSize(Activity activity) {
         Display display = activity.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -453,7 +485,7 @@ public class PhoneSystemUtil {
         return maxResolution;
     }
 
-    public void getBackRearCameraResolutionInMp() {
+/*    public void getBackRearCameraResolutionInMp() {
         Camera camera = Camera.open(0);    // For Back Camera
         android.hardware.Camera.Parameters params = camera.getParameters();
         List sizes = params.getSupportedPictureSizes();
@@ -521,7 +553,7 @@ public class PhoneSystemUtil {
             System.out.println("Back Megapixel :" + (((Collections.max(arrayListForWidth)) * (Collections.max(arrayListForHeight))) / 1024000));
         }
         camera.release();
-    }
+    }*/
 
     public String getTotalRAM(Activity activity) {
         String totalMemory;
@@ -592,7 +624,7 @@ public class PhoneSystemUtil {
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
         return formatSize(availableBlocks * blockSize);
-    }
+        }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static String getTotalInternalMemorySize() {
