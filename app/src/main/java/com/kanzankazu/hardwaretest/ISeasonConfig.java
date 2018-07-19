@@ -1,0 +1,36 @@
+package com.kanzankazu.hardwaretest;
+
+/**
+ * Created by glenn on 1/26/18.
+ */
+
+public interface ISeasonConfig {
+
+    String KEY_IS_UPDATE = "223KUCINGEBOG4412";
+    String KEY_IS_UPDATE_INFO = "123KUCINGEBOG4412";
+    String KEY_IS_UPDATE_NOTIF = "update";
+    String KEY_IS_UPDATE_INFO_NOTIF = "update_info";
+    String KEY_IS_FORCE_UPDATE_NOTIF = "force_update";
+
+    String KEY_STATE_IP = "111BIJIGEDE222";
+    String KEY_HIDE_NAV = "235KUDABLENYU5632";
+    String KEY_SAVE_DATE = "123BANGSAT123";
+    String KEY_OUI = "235KUDABLENYU5122";
+
+    String ERROR_RETRIEVAL = "235KAMBINGNGREBO5632";
+
+    String KEY_INTENT_POSIP = "123KUDABENGKAK123";
+    String KEY_INTENT_IPSTRING_LIST_IP = "123KUDABANGKE123";
+    String KEY_INTENT_IPSTRING_IP_UTIL = "123KUDABANGKER123";
+
+    String KEY_SUBNET_DB_READY = "PATAHTULANG";
+
+    String KEY_INTENT_PARAM = "intentParam";
+    String SHARED_PREF_URL_SAVED = "URLsave";
+
+    String KEY_SSH_USER = "user";
+    String DEFAULT_SSH_USER = "user";
+
+    String KEY_IN_APP_BILLING = "showads";
+    String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqtlICtx5EdKEK2xgxFb1hnjCixI7BesfIP3xIyBp2k/+HOIg1yWE3VXsDfxvxw2ROmWBey708OpqAvC6e/aCeDvzQYheOm3h889+brAO1h84MYIvSD3oXJ1nx2v3ujfiuq1UlClsKmKhe46r+dZASz0xeAh9v/ChKnOnjSxuzcy193WhYKrIyro0hn5aQwgQOZkQLIFy2jW416cvm7t3llsPlCZSuoArqIPR79LJWXFSEATQg8ORmsVV2EyaVu+lLss5dnuut+x90E16hhFaISynqG6IGP9oqvfd1IIbdjR4RFnvv4JnvRDX5mT2bTYeDJzQI/TMeLVyIAJIAMEGWQIDAQAB";
+}
