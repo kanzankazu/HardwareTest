@@ -29,20 +29,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="100"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:gravity="bottom"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/bMainTes"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Mulai Tes" />
+            android:layout_height="wrap_content"
+            android:textColor="@color/wallet_bright_foreground_holo_dark"
+            android:text="Mulai"
+            android:background="@drawable/button_start"
+            android:layout_gravity="bottom"/>
     </LinearLayout>
 
 </LinearLayout>

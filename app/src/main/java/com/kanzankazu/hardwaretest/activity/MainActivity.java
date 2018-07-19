@@ -2,6 +2,7 @@ package com.kanzankazu.hardwaretest.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,8 +12,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
+import com.kanzankazu.hardwaretest.database.Check;
+import com.kanzankazu.hardwaretest.database.SQLiteHelper;
 import com.kanzankazu.hardwaretest.model.ui.CheckModel;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
 import com.kanzankazu.hardwaretest.util.PhoneSystemUtil;
@@ -34,13 +38,20 @@ public class MainActivity extends LocalBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        if(PhoneSystemUtil.isRooted().equals("Allowed")){
+            Intent myIntent = new Intent(this, ClosingActivity.class);
+            startActivity(myIntent);
+            finish();
+        }
+        else {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
-        initComponent();
-        initContent();
-        initListener();
-        initPermissions();
+            initComponent();
+            initContent();
+            initListener();
+            initPermissions();
+        }
     }
 
     private void initComponent() {
@@ -330,4 +341,6 @@ public class MainActivity extends LocalBaseActivity {
             }
         }, 2000);
     }
+
+
 }
