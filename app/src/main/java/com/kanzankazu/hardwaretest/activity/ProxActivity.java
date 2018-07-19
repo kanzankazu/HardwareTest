@@ -56,7 +56,7 @@ public class ProxActivity extends AppCompatActivity {
             Intent intent = new Intent();
             setResult(Activity.RESULT_CANCELED, intent);
             finish();
-            //overridePendingTransition(R.anim., R.anim.);
+            overridePendingTransition(R.anim., R.anim.);
 
         }
     }
