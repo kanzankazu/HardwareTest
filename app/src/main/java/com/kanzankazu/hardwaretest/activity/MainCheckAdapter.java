@@ -89,7 +89,7 @@ class MainCheckAdapter extends RecyclerView.Adapter<MainCheckAdapter.ViewHolder>
     }
 
     /*public void updateModel(int id, @Nullable String content, String status) {
-        CheckModel model = models.get(id);
+        Check model = models.get(id);
         if (content != null) {
             model.setContent(content);
         }
