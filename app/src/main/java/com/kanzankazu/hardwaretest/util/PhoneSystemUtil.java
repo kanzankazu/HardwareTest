@@ -6,19 +6,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
-import android.graphics.Point;
-import android.hardware.Camera;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.RequiresApi;
 import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,9 +23,6 @@ import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,27 +33,27 @@ import static java.util.jar.Pack200.Packer.ERROR;
 public class PhoneSystemUtil {
 
     public static String getDataPhone(Activity activity) {
-        return  "Device Model : "                   + getPhoneModel()//getManufacture() + " " + getManufactureModel()
-                + "\n Android Version  : "          + getOSAndroid()
-                + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
-                + "\n Board : "                     + getCPUManufacture()
+        return "Device Model : " + getManufacture() + " " + getManufactureModel()
+                + "\n Android Version  : " + getOSAndroid()
+                + "\n Current Security Patch : " + getOSAndroidVersionSecurityPatch()
+                + "\n Board : " + getCPUManufacture()
                 // + " " + getCPUFreq()
-                + "\n Serial Number : "             + getSerialnumberBoard()
-                + "\n Kernel Version : "            + getKernelVersion()
+                + "\n Serial Number : " + getSerialnumberBoard()
+                + "\n Kernel Version : " + getKernelVersion()
                 // + "\n Builder : " + getBuilderVersion()
                 // + "\n Bootloader Version : " + getBootloaderVersion()
-                + "\n IMEI Number : "               + getImeiNumber(activity)
-                + "\n IMEI SV : "                   + getImeiSV(activity)
-                + "\n Operator Name : "             + getOperatorName(activity)
-                + "\n Mobile Network : "            + getDataState(activity)
-                + "\n Root Permission : "           + isRooted()
-                + "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
-                + "\n Screen DPI : "                + getScreenInfo("dpi",activity)
-                + "\n Screen Size : "               + getScreenInfo("size",activity)
-                + "\n RAM Size : "                  + getTotalRam()
-                + "\n Internal Memory Size : "      + getTotalInternalMemorySize()
-                + "\n Front Camera Resolution : "   + getCameraResolutionInMp("front")
-                + "\n Rear Camera Resolution : "    + getCameraResolutionInMp("rear")
+                + "\n IMEI Number : " + getImeiNumber(activity)
+                + "\n IMEI SV : " + getImeiSV(activity)
+                + "\n Operator Name : " + getOperatorName(activity)
+                + "\n Mobile Network : " + getDataState(activity)
+                + "\n Root Permission : " + isRooted()
+                //+ "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
+                //+ "\n Screen DPI : "                + getScreenInfo("dpi",activity)
+                //+ "\n Screen Size : "               + getScreenInfo("size",activity)
+                + "\n RAM Size : " + getTotalRam()
+                //+ "\n Internal Memory Size : "      + getTotalInternalMemorySize()
+                //+ "\n Front Camera Resolution : "   + getCameraResolutionInMp("front")
+                //+ "\n Rear Camera Resolution : "    + getCameraResolutionInMp("rear")
                 //+ "\n External Memory Size : "      + getTotalExternalMemorySize()
                 // + "\n Battery Health : " + checkBattery(activity)
                 // + "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
@@ -624,7 +615,7 @@ public class PhoneSystemUtil {
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
         return formatSize(availableBlocks * blockSize);
-        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static String getTotalInternalMemorySize() {
@@ -818,10 +809,9 @@ public class PhoneSystemUtil {
     }
 
     private int getNumberOfCores() {
-        if(Build.VERSION.SDK_INT >= 17) {
+        if (Build.VERSION.SDK_INT >= 17) {
             return Runtime.getRuntime().availableProcessors();
-        }
-        else {
+        } else {
             // Use saurabh64's answer
             return getNumCoresOldPhones();
         }
@@ -830,6 +820,7 @@ public class PhoneSystemUtil {
     /**
      * Gets the number of cores available in this device, across all processors.
      * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+     *
      * @return The number of cores, or 1 if failed to get result
      */
     private int getNumCoresOldPhones() {
@@ -838,7 +829,7 @@ public class PhoneSystemUtil {
             @Override
             public boolean accept(File pathname) {
                 //Check if filename is "cpu", followed by a single digit number
-                if(Pattern.matches("cpu[0-9]+", pathname.getName())) {
+                if (Pattern.matches("cpu[0-9]+", pathname.getName())) {
                     return true;
                 }
                 return false;
@@ -852,7 +843,7 @@ public class PhoneSystemUtil {
             File[] files = dir.listFiles(new CpuFilter());
             //Return the number of cores (virtual CPU devices)
             return files.length;
-        } catch(Exception e) {
+        } catch (Exception e) {
             //Default to return 1 core
             return 1;
         }
