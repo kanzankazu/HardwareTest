@@ -66,10 +66,11 @@ public class PhoneSystemUtil extends Activity{
                 + "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
                 + "\n Screen DPI : "                + getScreenInfo("dpi",activity)
                 + "\n Screen Size : "               + getScreenInfo("size",activity)
+                + "\n RAM Size : "                  + getTotalRam()
                 + "\n Internal Memory Size : "      + getTotalInternalMemorySize()
+                + "\n Front Camera Resolution : "   + getCameraResolutionInMp("front")
+                + "\n Rear Camera Resolution : "    + getCameraResolutionInMp("rear")
                 //+ "\n External Memory Size : "      + getTotalExternalMemorySize()
-                + "\n" + String.valueOf()
-                + "\n "+ checkBattery(activity)
                 // + "\n Battery Health : " + checkBattery(activity)
                 // + "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
                 // + "\n Screen Size : " + String.format("%.2f", screensize) + "inch"
@@ -315,6 +316,44 @@ public class PhoneSystemUtil extends Activity{
         return datastate;
     }
 
+    public static float getCameraResolutionInMp(String a) {
+        int cameraid=1;
+        int cameraman=1;
+
+        try {
+            if(a.equals("rear")){
+                cameraid=0;
+                cameraman = Camera.CameraInfo.CAMERA_FACING_BACK;
+            }
+            else if(a.equals("front")){
+                cameraid=1;
+                cameraman = Camera.CameraInfo.CAMERA_FACING_FRONT;
+            }
+            float maxResolution = -1;
+            long pixelCount = -1;
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(cameraid, cameraInfo);
+            if (cameraInfo.facing == cameraman ) {
+                try {
+                    Camera.Parameters cameraParams = Camera.open(cameraid).getParameters();
+                    for (int j = 0; j < cameraParams.getSupportedPictureSizes().size(); j++) {
+                        long pixelCountTemp = cameraParams.getSupportedPictureSizes().get(j).width * cameraParams.getSupportedPictureSizes().get(j).height; // Just changed i to j in this loop
+                        if (pixelCountTemp > pixelCount) {
+                            pixelCount = pixelCountTemp;
+                            maxResolution = Math.round(((float) pixelCountTemp) / 1000000);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return maxResolution;
+        } catch (Exception e) {
+            return 0;
+        }
+
+    }
+
     public static String isRooted() {
         String rootstate = "Not Allowed";
         String[] paths = {
@@ -414,7 +453,29 @@ public class PhoneSystemUtil extends Activity{
         return health[0];
     }
 
-    @SuppressLint({"NewApi", "LongLogTag"})
+    public static String getTotalRam() {
+        // Read Size of RAM
+        String totalram = null;
+        String totalramkb = null;
+        String totalramgb = null;
+        try {
+            Process p = Runtime.getRuntime().exec("cat /proc/meminfo");
+            InputStream is = null;
+            if (p.waitFor() == 0) {
+                is = p.getInputStream();
+            } else {
+                is = p.getErrorStream();
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            totalramkb = br.readLine().replace("MemTotal:      ", "");
+            totalramgb = String.valueOf(Float.valueOf(totalramkb.replace(" kB", "")) / 1048576.0);
+            totalram = String.format("%.1f", Float.valueOf(totalramgb)) + " GB";
+            br.close();
+        } catch (Exception ex) {
+        }
+        return totalram;
+    }
+/*    @SuppressLint({"NewApi", "LongLogTag"})
     private void getFullScreenSize(Activity activity) {
         Display display = activity.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -545,7 +606,7 @@ public class PhoneSystemUtil extends Activity{
         return maxResolution;
     }
 
-    public void getBackRearCameraResolutionInMp() {
+/*    public void getBackRearCameraResolutionInMp() {
         Camera camera = Camera.open(0);    // For Back Camera
         android.hardware.Camera.Parameters params = camera.getParameters();
         List sizes = params.getSupportedPictureSizes();
@@ -613,7 +674,7 @@ public class PhoneSystemUtil extends Activity{
             System.out.println("Back Megapixel :" + (((Collections.max(arrayListForWidth)) * (Collections.max(arrayListForHeight))) / 1024000));
         }
         camera.release();
-    }
+    }*/
 
     public String getTotalRAM(Activity activity) {
         String totalMemory;
@@ -684,7 +745,7 @@ public class PhoneSystemUtil extends Activity{
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
         return formatSize(availableBlocks * blockSize);
-    }
+        }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static String getTotalInternalMemorySize() {
