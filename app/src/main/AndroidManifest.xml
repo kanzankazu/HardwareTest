@@ -18,8 +18,7 @@
     <uses-permission android:name="android.permission.PREVENT_POWER_KEY" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.PREVENT_POWER_KEY" />
+g    <uses-permission android:name="android.permission.PREVENT_POWER_KEY" />
 
     /*Feature*/
     <uses-feature android:name="android.hardware.camera" />
