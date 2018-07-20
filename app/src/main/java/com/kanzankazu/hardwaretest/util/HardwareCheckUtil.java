@@ -46,13 +46,15 @@ public class HardwareCheckUtil {
         return (bluetoothAdapter != null && bluetoothAdapter.isEnabled());
     }
 
-    public static Boolean isBluetoothOnOff(@Nullable Boolean enable) {
+    public static Boolean isBluetoothOnOff(Context context, @Nullable Boolean enable) {
         final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (enable) {
             bluetoothAdapter.enable();
+            Toast.makeText(context, "Bluetooth On", Toast.LENGTH_SHORT).show();
             return true;
         } else {
             bluetoothAdapter.disable();
+            Toast.makeText(context, "Bluetooth Off", Toast.LENGTH_SHORT).show();
             return true;
         }
         /*if (bluetoothAdapter.isEnabled()) {
