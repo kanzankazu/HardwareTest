@@ -12,11 +12,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
-import com.kanzankazu.hardwaretest.database.Check;
-import com.kanzankazu.hardwaretest.database.SQLiteHelper;
 import com.kanzankazu.hardwaretest.model.ui.CheckModel;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
 import com.kanzankazu.hardwaretest.util.PhoneSystemUtil;
@@ -38,15 +35,13 @@ public class MainActivity extends LocalBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(PhoneSystemUtil.isRooted().equals("Allowed")){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        if (PhoneSystemUtil.isRooted().equals("Allowed")) {
             Intent myIntent = new Intent(this, ClosingActivity.class);
             startActivity(myIntent);
             finish();
-        }
-        else {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-
+        } else {
             initComponent();
             initContent();
             initListener();
@@ -287,7 +282,7 @@ public class MainActivity extends LocalBaseActivity {
                     if (HardwareCheckUtil.isBluetoothAvailable()) {
                         checkWifi();
                     } else {
-                        if (HardwareCheckUtil.isBluetoothOnOff(true)) {
+                        if (HardwareCheckUtil.isBluetoothOnOff(MainActivity.this, true)) {
                             checkWifi();
                         } else {
                             checkWifi();
