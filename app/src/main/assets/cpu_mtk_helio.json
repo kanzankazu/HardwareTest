@@ -1,0 +1,13 @@
+[
+	{"id": "mt6755", "name": "P10 series"},
+	{"id": "mt6757", "name": "P20 series"},
+	{"id": "mt6759", "name": "P30 series"},
+
+	{"id": "mt6763", "name": "P23"},
+
+	{"id": "mt6771", "name": "P60"},
+
+	{"id": "mt6795", "name": "X10 series"},
+	{"id": "mt6797", "name": "X20 series"},
+	{"id": "mt6799", "name": "X30 series"}
+]
