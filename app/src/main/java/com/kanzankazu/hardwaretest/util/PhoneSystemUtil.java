@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -45,7 +46,7 @@ public class PhoneSystemUtil extends Activity{
         return  "Device Model : "                   + getPhoneModel()
                 + "\n Android Version  : "          + getOSAndroid()
                 + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
-                + "\n Board : "                     + getCPUManufacture()
+                + "\n Board : "                     + getCPUManufacture(activity)
                 // + " " + getCPUFreq()
                 + "\n Serial Number : "             + getSerialnumberBoard()
                 + "\n Kernel Version : "            + getKernelVersion()
@@ -120,10 +121,10 @@ public class PhoneSystemUtil extends Activity{
         return Build.VERSION.SECURITY_PATCH;
     }
 
-    public static String loadJSONFromAsset() {
+    public static String loadJSONFromAsset(Context context) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            InputStream is = getAssets().open("cpu_snapdragon.json");
+            InputStream is = context.getAssets().open("cpu_snapdragon.json");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -139,10 +140,10 @@ public class PhoneSystemUtil extends Activity{
 
         return null;
     }
-    private static String getCPUManufacture() {
+    private static String getCPUManufacture(Context context) {
         String name = null,id=null,devicesoc=null,manufacture=null,board=null;
         try {
-            JSONArray jsonArray = new JSONArray(loadJSONFromAsset());
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset(context));
 
             for(int i=0;i<jsonArray.length();i++)
             {
