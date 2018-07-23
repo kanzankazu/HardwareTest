@@ -370,25 +370,18 @@ public class HardwareCheckUtil {
         }
     }
 
-    public static void checkSensorFingerPrint(Context context) {
-        // Check if we're running on Android 6.0 (M) or higher
+    public static boolean checkSensorFingerPrint(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //Fingerprint API only available on from Android 6.0 (M)
             FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
-            if (!fingerprintManager.isHardwareDetected()) {
-                // Device doesn't support fingerprint authentication
-                Toast.makeText(context, "Device doesn't support fingerprint.", Toast.LENGTH_SHORT).show();// Set your own toast  message
+            if (fingerprintManager.isHardwareDetected()) {
+                return true;
             } else {
-                //
-            }
-
-            /*else if (!fingerprintManager.hasEnrolledFingerprints()) {
-                // User hasn't enrolled any fingerprints to authenticate with
-            } else {
-                // Everything is ready for fingerprint authentication
+                return false;
+            } /*else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                return false;
             }*/
         } else {
-            Toast.makeText(context, "Your Os no support fingerprint.", Toast.LENGTH_SHORT).show();// Set your own toast  message
+            return false;
         }
     }
 

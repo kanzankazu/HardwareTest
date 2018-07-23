@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -44,6 +45,22 @@
         <activity
             android:name=".activity.ProxActivity"
             android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".activity.AccelActivity"
+            android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".activity.FingerActivity"
+            android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".activity.ButtonActivity"
+            android:theme="@style/AppTheme.FullScreen" />
+
+        <service android:name="com.kanzankazu.hardwaretest.service.LockService">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </service>
+        <receiver android:name=".activity.ButtonActivity" />
     </application>
 
 </manifest>
