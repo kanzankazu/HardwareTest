@@ -11,10 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 public class GyroActivity extends AppCompatActivity implements SensorEventListener {
-    private TextView tv;
+//    private TextView tv;
     private SensorManager sManager;
-
-    public String report = "- <strong>Giroscopio:</strong> <font color='#cc0000'>No se detectó actividad</font><br>\n";
 
     /** Called when the activity is first created. */
     @Override
