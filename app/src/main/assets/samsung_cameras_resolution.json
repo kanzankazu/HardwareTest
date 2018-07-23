@@ -1,0 +1,36 @@
+[
+	{"id": "s5k2l1",   "name": "12"},
+	{"id": "s5k2l2",   "name": "12"},
+	{"id": "s5k2l3",   "name": "12"},
+	{"id": "s5k2l7",   "name": "12"},
+	{"id": "s5k3m3",   "name": "12"},
+
+	{"id": "s5k2t8",   "name": "20"},
+
+	{"id": "s5k2p2",   "name": "16"},
+	{"id": "s5k2p6",   "name": "16"},
+	{"id": "s5k2p7",   "name": "16"},
+	{"id": "s5k2p8",   "name": "16"},
+	{"id": "s5k3p3",   "name": "16"},
+	{"id": "s5k3p8",   "name": "16"},
+	{"id": "s5k3p9",   "name": "16"},
+
+	{"id": "s5k3l2",   "name": "13"},
+	{"id": "s5k3l8",   "name": "13"},
+	{"id": "s5k3l9",   "name": "13"},
+	{"id": "s5k3m2",   "name": "13"},
+	{"id": "s5k2m8",   "name": "13"},
+
+	{"id": "s5k3h1",   "name": "8" },
+	{"id": "s5k3h5",   "name": "8" },
+	{"id": "s5k3h7",   "name": "8" },
+	{"id": "s5k4h7",   "name": "8" },
+	{"id": "s5k4h8",   "name": "8" },
+	{"id": "s5k4h9",   "name": "8" },
+	{"id": "s5k4h5",   "name": "8" },
+
+	{"id": "s5k4e",  "name": "5" },
+	{"id": "s5k5e", "name": "5" },
+
+	{"id": "s5k5ca", "name": "3" }
+]

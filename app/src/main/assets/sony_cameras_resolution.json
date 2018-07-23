@@ -1,0 +1,50 @@
+[
+	{"id": "imx132", "name": "2.4"},
+
+	{"id": "imx135", "name": "13"},
+	{"id": "imx214", "name": "13"},
+	{"id": "imx258", "name": "13"},
+	{"id": "imx278", "name": "13"},
+
+	{"id": "imx240", "name": "16"},
+	{"id": "imx234", "name": "16"},
+	{"id": "imx298", "name": "16"},
+	{"id": "imx398", "name": "16"},
+
+	{"id": "imx230", "name": "21"},
+	{"id": "imx338", "name": "21"},
+
+	{"id": "imx111", "name": "8" },
+	{"id": "imx145", "name": "8" },
+	{"id": "imx179", "name": "8" },
+	{"id": "imx219", "name": "8" },
+	{"id": "imx319", "name": "8" },
+	{"id": "imx320", "name": "8" },
+	{"id": "imx134", "name": "8" },
+	{"id": "imx268", "name": "8" },
+
+	{"id": "imx200", "name": "20.7" },
+	{"id": "imx220", "name": "20.7" },
+
+	{"id": "imx300", "name": "23" },
+	{"id": "imx318", "name": "22.5"},
+
+	{"id": "imx260", "name": "12"},
+	{"id": "imx286", "name": "12"},
+	{"id": "imx386", "name": "12"},
+	{"id": "imx486", "name": "12"},
+	{"id": "imx362", "name": "12"},
+	{"id": "imx377", "name": "12"},
+	{"id": "imx378", "name": "12"},
+
+	{"id": "imx333", "name": "12.2"},
+	{"id": "imx345", "name": "12.2"},
+
+	{"id": "imx241", "name": "5" },
+	{"id": "imx351", "name": "16" },
+	{"id": "imx371", "name": "16" },
+	{"id": "imx376", "name": "20" },
+
+	{"id": "imx350", "name": "20" },
+	{"id": "imx400", "name": "19" }
+]

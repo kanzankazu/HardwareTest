@@ -1,5 +1,6 @@
 package com.kanzankazu.hardwaretest.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -86,18 +87,21 @@ public class FingerActivity extends LocalBaseActivity implements FingerPrintAuth
         overridePendingTransition(R.anim.masuk_dari_kiri_ke_kanan, R.anim.keluar_ke_kanan);
     }
 
+    @SuppressLint("LongLogTag")
     @Override
     public void onNoFingerPrintHardwareFound() {
         Log.i("Lihat onNoFingerPrintHardwareFound FingerActivity", "Your device does not have finger print scanner. Please type 1234 to authenticate.");
         onBackPressed();
     }
 
+    @SuppressLint("LongLogTag")
     @Override
     public void onNoFingerPrintRegistered() {
         Log.i("Lihat onNoFingerPrintRegistered FingerActivity", "There are no finger prints registered on this device. Please register your finger from settings.");
         onBackPressed();
     }
 
+    @SuppressLint("LongLogTag")
     @Override
     public void onBelowMarshmallow() {
         Log.i("Lihat onBelowMarshmallow FingerActivity", "You are running older version of android that does not support finger print authentication. Please type 1234 to authenticate.");
@@ -111,6 +115,8 @@ public class FingerActivity extends LocalBaseActivity implements FingerPrintAuth
         overridePendingTransition(R.anim.masuk_dari_kiri_ke_kanan, R.anim.keluar_ke_kanan);
     }
 
+
+    @SuppressLint("LongLogTag")
     @Override
     public void onAuthFailed(int errorCode, String errorMessage) {
         switch (errorCode) {

@@ -15,6 +15,11 @@ import android.support.annotation.RequiresApi;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -37,7 +42,7 @@ import static java.util.jar.Pack200.Packer.ERROR;
 public class PhoneSystemUtil extends Activity{
 
     public static String getDataPhone(Activity activity) {
-        return  "Device Model : "                   + getPhoneModel()//getManufacture() + " " + getManufactureModel()
+        return  "Device Model : "                   + getPhoneModel()
                 + "\n Android Version  : "          + getOSAndroid()
                 + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
                 + "\n Board : "                     + getCPUManufacture()
@@ -86,6 +91,8 @@ public class PhoneSystemUtil extends Activity{
         return Build.MANUFACTURER + " " + phone_model;
     }
 
+
+
 /*    private static String getManufacture() {
         return Build.MANUFACTURER;
     }
@@ -113,12 +120,44 @@ public class PhoneSystemUtil extends Activity{
         return Build.VERSION.SECURITY_PATCH;
     }
 
+    public static String loadJSONFromAsset() {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            InputStream is = getAssets().open("cpu_snapdragon.json");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            bufferedReader.close();
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
     private static String getCPUManufacture() {
-        String devicesoc = null;
-        if (Build.HARDWARE.equals("qcom")) {
-            devicesoc = "Qualcomm " + Build.BOARD;
-        } else {
-            devicesoc = Build.HARDWARE + " " +Build.BOARD;
+        String name = null,id=null,devicesoc=null,manufacture=null,board=null;
+        try {
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset());
+
+            for(int i=0;i<jsonArray.length();i++)
+            {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                if (String.valueOf(Build.BOARD).toLowerCase().contains(jsonObject.getString("id"))) {
+                    board = jsonObject.getString("name");
+                    break;
+                } else {
+                    board = Build.BOARD;
+                }
+            }
+            devicesoc= Build.HARDWARE + " " + board;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return devicesoc;
     }
