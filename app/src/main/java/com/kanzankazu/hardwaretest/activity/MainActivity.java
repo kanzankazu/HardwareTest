@@ -6,11 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -18,10 +19,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
 import com.kanzankazu.hardwaretest.model.ui.CheckModel;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
+import com.kanzankazu.hardwaretest.util.ListArrayUtil;
 import com.kanzankazu.hardwaretest.util.PhoneSystemUtil;
 
 import java.util.ArrayList;
@@ -30,9 +33,14 @@ import java.util.List;
 import pl.tajchert.nammu.Nammu;
 import pl.tajchert.nammu.PermissionCallback;
 
-public class MainActivity extends LocalBaseActivity implements SensorEventListener {
+public class MainActivity extends LocalBaseActivity {
 
-    private static final int KEY_INTENT_PROXIMITY = 123123;
+    private static final int KEY_INTENT_FINGERPRINT = 1;
+    private static final int KEY_INTENT_PROXIMITY = 2;
+    private static final int KEY_INTENT_ACCELEROMETER = 3;
+    private static final int KEY_INTENT_BUTTON = 4;
+    private static final int KEY_INTENT_CAM = 6;
+    private static final int KEY_INTENT_SCREEN = 7;
     private TextView tvMainInfofvbi;
     private RecyclerView rvMainfvbi;
     private ProgressBar pbMainfvbi;
@@ -42,16 +50,18 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
     private SensorManager sensorManager;
     private boolean isSensorAccelerometer;
     private boolean isSensorProximity;
-    private List<Integer> connListStatus;
+    private List<Integer> connListStatus = new ArrayList<>();
+    private List<Integer> sensListStatus = new ArrayList<>();
+    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (PhoneSystemUtil.isRooted()) {
-            /*Intent myIntent = new Intent(this, ClosingActivity.class);
-            startActivity(myIntent);
-            finish();*/
+            finish();
+            Toast.makeText(getApplicationContext(), "Perangkat anda sudah di root", Toast.LENGTH_SHORT).show();// Set your own toast  message
         } else {
             initComponent();
             initContent();
@@ -93,6 +103,7 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
             @Override
             public void onClick(View view) {
                 doCheck();
+                bMainTesfvbi.setEnabled(false);
             }
         });
     }
@@ -224,6 +235,19 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
                 }
             });
         }
+        if (!Nammu.checkPermission(Manifest.permission.VIBRATE)) {
+            Nammu.askForPermission(this, Manifest.permission.VIBRATE, new PermissionCallback() {
+                @Override
+                public void permissionGranted() {
+
+                }
+
+                @Override
+                public void permissionRefused() {
+
+                }
+            });
+        }
     }
 
     private void resetState() {
@@ -236,6 +260,7 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
         mainCheckAdapter.updateModelAt(7, CheckModel.UNCHECKING);
         mainCheckAdapter.notifyDataSetChanged();
         pbMainfvbi.setProgress(0);
+        bMainTesfvbi.setEnabled(true);
     }
 
     /*private void setProgresCheck(int i) {
@@ -304,7 +329,6 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
         pbMainfvbi.setProgress(100 / 7 * 2);
 
         checkBluetooth();
-        connListStatus = new ArrayList<Integer>();
     }
 
     private void checkBluetooth() {
@@ -434,128 +458,192 @@ public class MainActivity extends LocalBaseActivity implements SensorEventListen
 
     //check sensor
     private void doCheckSensor() {
-        /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
+        int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
         if (ListArrayUtil.isIntArrayContainInt(ints, CheckModel.CHECK_ERROR)) {
             mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_ERROR);
         } else {
             mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_DONE);
-        }*/
-        mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_DONE);
+        }
+        //mainCheckAdapter.updateModelAt(2, CheckModel.CHECK_DONE);
         mainCheckAdapter.updateModelAt(3, CheckModel.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
         pbMainfvbi.setProgress(100 / 7 * 3);
 
-        checkAccelerometer();
+        checkFingerprint();
     }
 
-    private void checkAccelerometer() {
-        if (HardwareCheckUtil.checkSensor(MainActivity.this, "Accelerometer", PackageManager.FEATURE_SENSOR_ACCELEROMETER, Sensor.TYPE_ACCELEROMETER)) {
-            Intent intent = new Intent(MainActivity.this, ProxActivity.class);
-            startActivityForResult(intent, KEY_INTENT_PROXIMITY);
-            //overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+    private void checkFingerprint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+            if (fingerprintManager.isHardwareDetected()) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) == PackageManager.PERMISSION_GRANTED) {
+                    if (fingerprintManager.hasEnrolledFingerprints()) {
+                        sensListStatus.add(CheckModel.CHECK_DONE);
+                        checkProximity();
+                    } else {
+                        sensListStatus.add(CheckModel.CHECK_DONE);
+                        checkProximity();
+                    }
+                } else {
+                    sensListStatus.add(CheckModel.CHECK_ERROR);
+                    checkProximity();
+                }
+            } else {
+                sensListStatus.add(CheckModel.CHECK_ERROR);
+                checkProximity();
+            }
         } else {
+            sensListStatus.add(CheckModel.CHECK_ERROR);
             checkProximity();
         }
-    }
+        // Check whether the device has a Fingerprint sensor.
 
-    private void dialogCheckAccelerometer() {
-        dialogCheckAccelerometers = new Dialog(MainActivity.this);
-        dialogCheckAccelerometers.setContentView(R.layout.popchecksystem);
-        dialogCheckAccelerometers.setTitle("");
-
-        WindowManager.LayoutParams layoutparams = new WindowManager.LayoutParams();
-        layoutparams.copyFrom(dialogCheckAccelerometers.getWindow().getAttributes());
-        layoutparams.width = WindowManager.LayoutParams.MATCH_PARENT;//ukuran lebar layout
-        layoutparams.height = WindowManager.LayoutParams.WRAP_CONTENT;//ukuran tinggi layout
-
-        // set the custom dialogCheckAccelerometers components - text, image and button
-        //CheckAccelerometers = () dialogCheckAccelerometers.findViewById(R.id.);
-        TextView tvPopCheckAccelerometers = (TextView) dialogCheckSystem.findViewById(R.id.tvPopCheckSystem);
-        Button bPopCheckAccelerometers = (Button) dialogCheckSystem.findViewById(R.id.bPopCheckSystem);
-
-        tvPopCheckAccelerometers.setText("Gerakan HP anda!");
-        bPopCheckAccelerometers.setVisibility(View.GONE);
-
-        isSensorAccelerometer = true;
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-
-        dialogCheckAccelerometers.show();
-        dialogCheckAccelerometers.getWindow().setAttributes(layoutparams);
+        /*if (HardwareCheckUtil.checkSensorFingerPrint(MainActivity.this)) {
+            Intent intent = new Intent(MainActivity.this, FingerActivity.class);
+            startActivityForResult(intent, KEY_INTENT_FINGERPRINT);
+            overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
+        } else {
+            checkProximity();
+            sensListStatus.add(CheckModel.CHECK_ERROR);
+        }*/
     }
 
     private void checkProximity() {
         if (HardwareCheckUtil.checkSensor(MainActivity.this, "Proximity", PackageManager.FEATURE_SENSOR_PROXIMITY, Sensor.TYPE_PROXIMITY)) {
-            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
-            isSensorProximity = true;
-
-            dialogCheckProximity();
+            Intent intent = new Intent(MainActivity.this, ProxActivity.class);
+            startActivityForResult(intent, KEY_INTENT_PROXIMITY);
+            overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
         } else {
-            resetState();
+            checkAccelerometer();
+            sensListStatus.add(CheckModel.CHECK_ERROR);
         }
     }
 
-    private void dialogCheckProximity() {
-        dialogCheckProximitys = new Dialog(MainActivity.this);
-        dialogCheckProximitys.setContentView(R.layout.popchecksystem);
-        dialogCheckProximitys.setTitle("");
+    private void checkAccelerometer() {
+        if (HardwareCheckUtil.checkSensor(MainActivity.this, "Accelerometer", PackageManager.FEATURE_SENSOR_ACCELEROMETER, Sensor.TYPE_ACCELEROMETER)) {
+            Intent intent = new Intent(MainActivity.this, AccelActivity.class);
+            startActivityForResult(intent, KEY_INTENT_ACCELEROMETER);
+            overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
+        } else {
+            //TODO
+            doCheckButton();
+            sensListStatus.add(CheckModel.CHECK_ERROR);
+        }
+    }
 
-        WindowManager.LayoutParams layoutparams = new WindowManager.LayoutParams();
-        layoutparams.copyFrom(dialogCheckProximitys.getWindow().getAttributes());
-        layoutparams.width = WindowManager.LayoutParams.MATCH_PARENT;//ukuran lebar layout
-        layoutparams.height = WindowManager.LayoutParams.WRAP_CONTENT;//ukuran tinggi layout
+    //check Tombol
+    private void doCheckButton() {
+        int[] ints = ListArrayUtil.convertListIntegertToIntArray(sensListStatus);
+        if (ListArrayUtil.isIntArrayContainInt(ints, CheckModel.CHECK_ERROR)) {
+            mainCheckAdapter.updateModelAt(3, CheckModel.CHECK_ERROR);
+        } else {
+            mainCheckAdapter.updateModelAt(3, CheckModel.CHECK_DONE);
+        }
+        //mainCheckAdapter.updateModelAt(3, CheckModel.CHECK_DONE);
+        mainCheckAdapter.updateModelAt(4, CheckModel.CHECKING);
+        mainCheckAdapter.notifyDataSetChanged();
+        pbMainfvbi.setProgress(100 / 7 * 4);
 
-        // set the custom dialogCheckProximitys components - text, image and button
-        //CheckAccelerometers = () dialogCheckProximitys.findViewById(R.id.);
-        TextView tvPopCheckAccelerometers = (TextView) dialogCheckSystem.findViewById(R.id.tvPopCheckSystem);
-        Button bPopCheckAccelerometers = (Button) dialogCheckSystem.findViewById(R.id.bPopCheckSystem);
+        checkButton();
+    }
 
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-        isSensorAccelerometer = true;
+    private void checkButton() {
+        Intent intent = new Intent(MainActivity.this, ButtonActivity.class);
+        startActivityForResult(intent, KEY_INTENT_BUTTON);
+        overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
+    }
 
-        tvPopCheckAccelerometers.setText("Gerakan Tangan anda di atas HP anda!");
-        bPopCheckAccelerometers.setVisibility(View.GONE);
+    //check Kamera
+    private void doCheckCamera() {
+        mainCheckAdapter.updateModelAt(6, CheckModel.CHECKING);
+        mainCheckAdapter.notifyDataSetChanged();
+        pbMainfvbi.setProgress(100 / 7 * 6);
 
-        dialogCheckProximitys.show();
-        dialogCheckProximitys.getWindow().setAttributes(layoutparams);
+        checkCamera();
+    }
+
+    private void checkCamera() {
+        Intent intent = new Intent(MainActivity.this, CamActivity.class);
+        startActivityForResult(intent, KEY_INTENT_CAM);
+        overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
+
+    }
+
+    //check TouchScreen
+    private void doCheckScreen() {
+        mainCheckAdapter.updateModelAt(7, CheckModel.CHECKING);
+        mainCheckAdapter.notifyDataSetChanged();
+        pbMainfvbi.setProgress(100 / 7 * 7);
+
+        checkScreen();
+    }
+
+    private void checkScreen() {
+        Intent intent = new Intent(MainActivity.this, ScreenActivity.class);
+        startActivityForResult(intent, KEY_INTENT_SCREEN);
+        overridePendingTransition(R.anim.masuk_dari_kanan_ke_kiri, R.anim.keluar_ke_kiri);
+    }
+
+    //check Finish
+    private void doFinish() {
 
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (isSensorAccelerometer) {
-            if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-
-                float x = sensorEvent.values[0];
-                float y = sensorEvent.values[1];
-                float z = sensorEvent.values[2];
-
-                float diff = (float) Math.sqrt(x * x + y * y + z * z);
-                if (diff > 0.5) {//TODO 0.5 is a threshold, you can test it and change it
-                    isSensorAccelerometer = false;
-                    dialogCheckAccelerometers.dismiss();
-                    checkProximity();
-                }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == KEY_INTENT_FINGERPRINT) {
+            if (resultCode == RESULT_OK) {
+                checkProximity();
+                sensListStatus.add(CheckModel.CHECK_DONE);
+            } else {
+                checkProximity();
+                sensListStatus.add(CheckModel.CHECK_ERROR);
             }
-        } else if (isSensorProximity) {
-            if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                    int a = 0, b = 0;
-                    if (sensorEvent.values[0] == 0) {
-                        a++;
-                    } else {
-                        b++;
-                    }
-                    if (a > 2 && b > 2) {
-                        isSensorProximity = false;
-
-                    }
-                }
+        } else if (requestCode == KEY_INTENT_PROXIMITY) {
+            if (resultCode == RESULT_OK) {
+                checkAccelerometer();
+                sensListStatus.add(CheckModel.CHECK_DONE);
+            } else {
+                checkAccelerometer();
+                sensListStatus.add(CheckModel.CHECK_ERROR);
+            }
+        } else if (requestCode == KEY_INTENT_ACCELEROMETER) {
+            if (resultCode == RESULT_OK) {
+                doCheckButton();
+                sensListStatus.add(CheckModel.CHECK_DONE);
+            } else {
+                doCheckButton();
+                sensListStatus.add(CheckModel.CHECK_ERROR);
+            }
+        } else if (requestCode == KEY_INTENT_BUTTON) {
+            if (resultCode == RESULT_OK) {
+                doCheckCamera();
+                mainCheckAdapter.updateModelAt(4, CheckModel.CHECK_DONE);
+                mainCheckAdapter.updateModelAt(5, CheckModel.CHECK_DONE);
+                mainCheckAdapter.notifyDataSetChanged();
+            } else {
+                doCheckCamera();
+                mainCheckAdapter.updateModelAt(4, CheckModel.CHECK_ERROR);
+                mainCheckAdapter.updateModelAt(5, CheckModel.CHECK_ERROR);
+                mainCheckAdapter.notifyDataSetChanged();
+            }
+        } else if (requestCode == KEY_INTENT_CAM) {
+            if (resultCode == RESULT_OK) {
+                doCheckScreen();
+                mainCheckAdapter.updateModelAt(6, CheckModel.CHECK_DONE);
+                mainCheckAdapter.notifyDataSetChanged();
+            } else {
+                doCheckScreen();
+                mainCheckAdapter.updateModelAt(6, CheckModel.CHECK_ERROR);
+                mainCheckAdapter.notifyDataSetChanged();
+            }
+        } else if (requestCode == KEY_INTENT_SCREEN) {
+            if (resultCode == RESULT_OK) {
+                resetState();
+            } else {
+                resetState();
             }
         }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 }

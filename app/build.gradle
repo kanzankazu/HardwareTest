@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
     implementation 'com.github.tajchert:nammu:1.2.0'
+    implementation 'com.multidots:fingerprint-auth:1.0.1'
 
     implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'com.google.firebase:firebase-ads:12.0.1'
