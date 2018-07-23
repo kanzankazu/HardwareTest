@@ -385,6 +385,33 @@ public class HardwareCheckUtil {
         }
     }
 
+    public static boolean ishasFlash(Context context) {
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+
+    public static boolean isFlashOn(Camera camera) {
+        Camera.Parameters parameters = camera.getParameters();
+        if (parameters.getFlashMode().equals("FLASH_MODE_TORCH")) {
+            return true;
+        } else if (parameters.getFlashMode().equals("FLASH_MODE_OFF")) {
+            return false;
+        }
+        return false;
+    }
+
+    public static void FlashOnOff(Camera cam) {
+        if (isFlashOn(cam)) {
+            cam.stopPreview();
+            cam.release();
+        } else {
+            cam = Camera.open();
+            Camera.Parameters p = cam.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            cam.setParameters(p);
+            cam.startPreview();
+        }
+    }
+
     public static boolean ishasCamera(Context context) {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
@@ -455,6 +482,36 @@ public class HardwareCheckUtil {
             result = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(result);
+    }
+
+    public static int setCameraDisplayOrientationInt(Activity activity, int cameraId, Camera camera) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        getCameraInfo(cameraId, info);
+        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
     }
 
     public static boolean getMicrophoneAvailable(Context context) {

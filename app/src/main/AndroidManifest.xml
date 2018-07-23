@@ -21,8 +21,12 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.PREVENT_POWER_KEY" />
 
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 
 
     <application
@@ -54,13 +58,19 @@
         <activity
             android:name=".activity.ButtonActivity"
             android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".activity.CamActivity"
+            android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".activity.ScreenActivity"
+            android:theme="@style/AppTheme.FullScreen" />
+
 
         <service android:name="com.kanzankazu.hardwaretest.service.LockService">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </service>
-        <receiver android:name=".activity.ButtonActivity" />
     </application>
 
 </manifest>

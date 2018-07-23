@@ -353,7 +353,7 @@ public class MainActivity extends LocalBaseActivity {
                     connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     private void checkWifi() {
@@ -378,7 +378,7 @@ public class MainActivity extends LocalBaseActivity {
                     connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     private void checkGPS() {
@@ -403,7 +403,7 @@ public class MainActivity extends LocalBaseActivity {
                     connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     private void checkData() {
@@ -428,7 +428,7 @@ public class MainActivity extends LocalBaseActivity {
                     connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     private void checkNFC() {
@@ -453,7 +453,7 @@ public class MainActivity extends LocalBaseActivity {
                     connListStatus.add(CheckModel.CHECK_ERROR);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     //check sensor
