@@ -1,5 +1,6 @@
 *.iml
 /.idea
+.idea/gi
 .gradle
 /local.properties
 /.idea/workspace.xml
@@ -8,6 +9,7 @@
 /build
 /captures
 .externalNativeBuild
+
 
 # Built application files
 *.apk
