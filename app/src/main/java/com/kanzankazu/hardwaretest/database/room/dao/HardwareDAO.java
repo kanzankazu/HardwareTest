@@ -12,7 +12,7 @@ import com.kanzankazu.hardwaretest.database.room.table.Hardware;
 @Dao
 public interface HardwareDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertHardware(Hardware barang);
+    Long insertHardware(Hardware barang);
 
     @Update
     int updateHardware(Hardware barang);
@@ -21,8 +21,8 @@ public interface HardwareDAO {
     int deleteHardware(Hardware barang);
 
     @Query("SELECT * FROM thardware_data")
-    Hardware[] selectAllHardwares();
+    Hardware[] selectAllHardware();
 
     @Query("SELECT * FROM thardware_data WHERE idHardware = :id LIMIT 1")
-    Hardware selectHardwareDetail(int id);
+    Hardware selectHardwareById(int id);
 }

@@ -52,7 +52,6 @@ public class AccelActivity extends LocalBaseActivity {
         mySensor = mySensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         vibrateThreshold = mySensor.getMaximumRange() / 2;
 
-
         if (mySensor != null) {
             mySensorManager.registerListener(sensorEventListener, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
         } else {

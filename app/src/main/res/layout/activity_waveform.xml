@@ -7,33 +7,22 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.activity.WaveformActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:theme="@style/AppTheme.NoActionBar">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/colorPrimary"
-            app:popupTheme="@style/AppTheme.NoActionBar" />
-
-    </android.support.design.widget.AppBarLayout>
-
+    <include layout="@layout/content_waveform" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/playFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:src="@android:drawable/ic_media_play" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fabPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
+        android:layout_margin="20dp"
+        android:src="@android:drawable/ic_media_play" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
         android:src="@android:drawable/presence_audio_away" />
 
 </android.support.design.widget.CoordinatorLayout>

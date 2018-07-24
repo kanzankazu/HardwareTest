@@ -68,7 +68,6 @@
             android:name=".ui.activity.WaveformActivity"
             android:theme="@style/AppTheme.FullScreen" />
 
-
         <service android:name="com.kanzankazu.hardwaretest.service.LockService">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

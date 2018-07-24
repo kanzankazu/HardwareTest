@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -30,9 +29,6 @@ import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,30 +36,32 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static java.util.jar.Pack200.Packer.ERROR;
 
-public class PhoneSystemUtil extends Activity{
+public class PhoneSystemUtil extends Activity {
 
     public static String getDataPhone(Activity activity) {
-        return  "Device Model : "                   + getPhoneModel2(activity)
-                + "\n Android Version  : "          + getOSAndroid()
-                + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
-                + "\n Board : "                     + getCPUManufacture(activity)
+
+
+        return "Device Model : " + getPhoneModel2(activity)
+                + "\n Android Version  : " + getOSAndroid()
+                + "\n Current Security Patch : " + getOSAndroidVersionSecurityPatch()
+                + "\n Board : " + getCPUManufacture(activity)
                 // + " " + getCPUFreq()
-                + "\n Serial Number : "             + getSerialnumberBoard()
-                + "\n Kernel Version : "            + getKernelVersion()
+                + "\n Serial Number : " + getSerialnumberBoard()
+                + "\n Kernel Version : " + getKernelVersion()
                 // + "\n Builder : " + getBuilderVersion()
                 // + "\n Bootloader Version : " + getBootloaderVersion()
-                + "\n IMEI Number : "               + getImeiNumber(activity)
-                + "\n IMEI SV : "                   + getImeiSV(activity)
-                + "\n Operator Name : "             + getOperatorName(activity)
-                + "\n Mobile Network : "            + getDataState(activity)
-                + "\n Root Permission : "           + isRooted()
-                + "\n Screen Resolution : "         + getScreenInfo("resolution",activity)
-                + "\n Screen DPI : "                + getScreenInfo("dpi",activity)
-                + "\n Screen Size : "               + getScreenInfo("size",activity)
-                + "\n RAM Size : "      + getTotalRam()
-                + "\n Internal Memory Size : "      + getTotalInternalMemorySize()
-                + "\n Front Camera Resolution : "   + getCameraResolutionInMp("front")
-                + "\n Rear Camera Resolution : "    + getCameraResolutionInMp("rear")
+                + "\n IMEI Number : " + getImeiNumber(activity)
+                + "\n IMEI SV : " + getImeiSV(activity)
+                + "\n Operator Name : " + getOperatorName(activity)
+                + "\n Mobile Network : " + getDataState(activity)
+                + "\n Root Permission : " + isRooted()
+                + "\n Screen Resolution : " + getScreenInfo("resolution", activity)
+                + "\n Screen DPI : " + getScreenInfo("dpi", activity)
+                + "\n Screen Size : " + getScreenInfo("size", activity)
+                + "\n RAM Size : " + getTotalRam()
+                + "\n Internal Memory Size : " + getTotalInternalMemorySize()
+                + "\n Front Camera Resolution : " + getCameraResolutionInMp("front")
+                + "\n Rear Camera Resolution : " + getCameraResolutionInMp("rear")
                 //+ "\n External Memory Size : "      + getTotalExternalMemorySize()
                 // + "\n Battery Health : " + checkBattery(activity)
                 // + "\n Screen Resolution : " + heightPixels + "x" + widthPixels + "pixels"
@@ -92,9 +90,7 @@ public class PhoneSystemUtil extends Activity{
         return Build.MANUFACTURER + " " + phone_model;
     }
 
-
-
-/*    private static String getManufacture() {
+    /*private static String getManufacture() {
         return Build.MANUFACTURER;
     }
 
@@ -113,7 +109,7 @@ public class PhoneSystemUtil extends Activity{
         return "Android " + AndroidNameList[Build.VERSION.SDK_INT - 1] + ", " + Build.VERSION.RELEASE;
     }
 
-/*    private static String getOSAndroidVersion() {
+    /*private static String getOSAndroidVersion() {
         return Build.VERSION.RELEASE;
     }*/
 
@@ -125,10 +121,10 @@ public class PhoneSystemUtil extends Activity{
         return str.length() < 2 ? str : str.substring(0, 2);
     }
 
-    public static String loadJSONFromAsset(Context context) {
+    public static String loadJSONFromAsset(Context context, String jsonFile) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            InputStream is = context.getAssets().open("cpu.json");
+            InputStream is = context.getAssets().open(jsonFile);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -146,13 +142,12 @@ public class PhoneSystemUtil extends Activity{
     }
 
     private static String getCPUManufacture(Context context) {
-        String name = null,id=null,devicesoc=null,manufacture=null,board=null;
+        String name = null, id = null, devicesoc = null, manufacture = null, board = null;
         String a = firstTwo(Build.BOARD);
         try {
-            JSONArray jsonArray = new JSONArray(loadJSONFromAsset(context));
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset(context, "cpu.json"));
 
-            for(int i=0;i<jsonArray.length();i++)
-            {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 if (String.valueOf(Build.BOARD).toLowerCase().contains(jsonObject.getString("id"))) {
                     board = jsonObject.getString("name");
@@ -161,13 +156,11 @@ public class PhoneSystemUtil extends Activity{
                     board = Build.BOARD;
                 }
             }
-            if(a.equals("ms")||a.equals("ap")||a.equals("sd")) {
+            if (a.equals("ms") || a.equals("ap") || a.equals("sd")) {
                 devicesoc = "Qualcomm Snapdragon " + board;
-            }
-            else if(a.equals("mt")){
+            } else if (a.equals("mt")) {
                 devicesoc = "Mediatek " + board;
-            }
-            else if(a.equals("hi")||a.equals("ki")){
+            } else if (a.equals("hi") || a.equals("ki")) {
                 devicesoc = "Hi-Silicon Kirin " + board;
             }
 
@@ -177,9 +170,8 @@ public class PhoneSystemUtil extends Activity{
         return devicesoc;
     }
 
-/*    @SuppressLint("LongLogTag")
     private static String getCPUFreq() {
-        String z =  null;
+        String z = null;
         try {
             Process x[] = {
                     Runtime.getRuntime().exec("cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"),
@@ -196,13 +188,13 @@ public class PhoneSystemUtil extends Activity{
                 a[i] = new BufferedReader(new InputStreamReader(is[i])).readLine();
                 new BufferedReader(new InputStreamReader(is[i])).close();
             }
-            z=a[0];
-            Log.d("CPU info",z);
+            z = a[0];
+            Log.d("CPU info", z);
         } catch (Exception ex) {
-            Log.d("Lihat onCreate PhoneSystemUtil", ex.getMessage());
+            Log.d("Lihat getCPUFreq", ex.getMessage());
         }
         return String.format("%.2f", Float.valueOf(z) / 1000000) + " GHz";
-    }*/
+    }
 
     public static String loadJSONFromAsset2(Context context) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -225,12 +217,11 @@ public class PhoneSystemUtil extends Activity{
     }
 
     private static String getPhoneModel2(Context context) {
-        String model=null;
+        String model = null;
         try {
             JSONArray jsonArray = new JSONArray(loadJSONFromAsset2(context));
 
-            for(int i=0;i<jsonArray.length();i++)
-            {
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 if (String.valueOf(Build.MODEL).equals(jsonObject.getString("model"))) {
                     model = jsonObject.getString("marketing-name");
@@ -244,11 +235,11 @@ public class PhoneSystemUtil extends Activity{
         }
         return model;
     }
+
     private static String getSerialnumberBoard() {
         return Build.SERIAL;
     }
 
-    @SuppressLint("LongLogTag")
     private static String getKernelVersion() {
         String line = null;
         try {
@@ -264,30 +255,28 @@ public class PhoneSystemUtil extends Activity{
             Log.i("Kernel Version", line);
             br.close();
         } catch (Exception ex) {
-            Log.d("Lihat getKernelVersion PhoneSystemUtil", ex.getMessage());
+            Log.d("Lihat getKernelVersion", ex.getMessage());
         }
         return line;
     }
 
-/*    private static String getBuilderVersion() {
+    private static String getBuilderVersion() {
         return Build.USER + "@" + Build.HOST;
-
     }
 
     private static String getBootloaderVersion() {
         return Build.BOOTLOADER;
     }
-    */
 
     @SuppressLint("MissingPermission")
     private static String getImeiNumber(Activity activity) {
         TelephonyManager mTelephonyManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         @SuppressLint({"NewApi", "LocalSuppress"})
-        String imei = mTelephonyManager.getImei(0)+", "
-                    + mTelephonyManager.getImei(1)+", "
-                    + mTelephonyManager.getImei(2)+", "
-                    + mTelephonyManager.getImei(3)+", "
-                    + mTelephonyManager.getImei(4);
+        String imei = mTelephonyManager.getImei(0) + ", "
+                + mTelephonyManager.getImei(1) + ", "
+                + mTelephonyManager.getImei(2) + ", "
+                + mTelephonyManager.getImei(3) + ", "
+                + mTelephonyManager.getImei(4);
         return imei.replace(", null", "");
     }
 
@@ -398,23 +387,22 @@ public class PhoneSystemUtil extends Activity{
     }
 
     public static float getCameraResolutionInMp(String a) {
-        int cameraid=1;
-        int cameraman=1;
+        int cameraid = 1;
+        int cameraman = 1;
 
         try {
-            if(a.equals("rear")){
-                cameraid=0;
+            if (a.equals("rear")) {
+                cameraid = 0;
                 cameraman = Camera.CameraInfo.CAMERA_FACING_BACK;
-            }
-            else if(a.equals("front")){
-                cameraid=1;
+            } else if (a.equals("front")) {
+                cameraid = 1;
                 cameraman = Camera.CameraInfo.CAMERA_FACING_FRONT;
             }
             float maxResolution = -1;
             long pixelCount = -1;
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(cameraid, cameraInfo);
-            if (cameraInfo.facing == cameraman ) {
+            if (cameraInfo.facing == cameraman) {
                 try {
                     Camera.Parameters cameraParams = Camera.open(cameraid).getParameters();
                     for (int j = 0; j < cameraParams.getSupportedPictureSizes().size(); j++) {
@@ -457,8 +445,8 @@ public class PhoneSystemUtil extends Activity{
         return rootstate;
     }
 
-    public static String getScreenInfo(String a,Activity activity){
-        String screenresolution,screensize,screendpi=null;
+    public static String getScreenInfo(String a, Activity activity) {
+        String screenresolution, screensize, screendpi = null;
 
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
@@ -475,20 +463,18 @@ public class PhoneSystemUtil extends Activity{
         float screensizenofullscreen = (float) Math.sqrt(x + y);
 
         screenresolution = String.valueOf(heightPixels) + "x" + String.valueOf(widthPixels) + " pixels";
-        screensize = String.format("%.1f",Float.valueOf(screensizenofullscreen)) + " inch";
-        screendpi = String.valueOf(metrics.densityDpi)+ " DPI";
+        screensize = String.format("%.1f", Float.valueOf(screensizenofullscreen)) + " inch";
+        screendpi = String.valueOf(metrics.densityDpi) + " DPI";
 
-        if (a.equals("resolution")){
+        if (a.equals("resolution")) {
             a = screenresolution;
-        }
-        else if(a.equals("dpi")){
+        } else if (a.equals("dpi")) {
             a = screendpi;
-        }
-        else if(a.equals("size")){
+        } else if (a.equals("size")) {
             a = screensize;
         }
 
-        return  a;
+        return a;
     }
 
     public static String checkBattery(Activity activity) {
@@ -499,32 +485,32 @@ public class PhoneSystemUtil extends Activity{
             public void onReceive(Context context, Intent intent) {
                 int status = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, 0);
                 if (status == BatteryManager.BATTERY_HEALTH_COLD) {
-                    health[0] ="COLD";
+                    health[0] = "COLD";
                     //textview.setText("Battery health = Cold");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_DEAD) {
-                    health[0] ="DEAD";
+                    health[0] = "DEAD";
 
                     //textview.setText("Battery health = Dead");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_GOOD) {
-                    health[0] ="GOOD";
+                    health[0] = "GOOD";
                     //textview.setText("Battery health = Good");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_OVERHEAT) {
-                    health[0] ="OVERHEAT";
+                    health[0] = "OVERHEAT";
                     //textview.setText("Battery health = Over Heat");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE) {
-                    health[0] ="OVER VOLTAGE";
+                    health[0] = "OVER VOLTAGE";
                     //textview.setText("Battery health = Over Voltage");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_UNKNOWN) {
-                    health[0] ="UNKNOWN";
+                    health[0] = "UNKNOWN";
                     //textview.setText("Battery health = Unknown");
                 }
                 if (status == BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE) {
-                    health[0] ="UNSPECIFIED FAILURE";
+                    health[0] = "UNSPECIFIED FAILURE";
                     //textview.setText("Battery health = Unspecified failure");
                 }
 
@@ -826,7 +812,7 @@ public class PhoneSystemUtil extends Activity{
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
         return formatSize(availableBlocks * blockSize);
-        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public static String getTotalInternalMemorySize() {
@@ -1020,10 +1006,9 @@ public class PhoneSystemUtil extends Activity{
     }
 
     public int getNumberOfCores() {
-        if(Build.VERSION.SDK_INT >= 17) {
+        if (Build.VERSION.SDK_INT >= 17) {
             return Runtime.getRuntime().availableProcessors();
-        }
-        else {
+        } else {
             // Use saurabh64's answer
             return getNumCoresOldPhones();
         }
@@ -1032,6 +1017,7 @@ public class PhoneSystemUtil extends Activity{
     /**
      * Gets the number of cores available in this device, across all processors.
      * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+     *
      * @return The number of cores, or 1 if failed to get result
      */
 
@@ -1041,7 +1027,7 @@ public class PhoneSystemUtil extends Activity{
             @Override
             public boolean accept(File pathname) {
                 //Check if filename is "cpu", followed by a single digit number
-                if(Pattern.matches("cpu[0-9]+", pathname.getName())) {
+                if (Pattern.matches("cpu[0-9]+", pathname.getName())) {
                     return true;
                 }
                 return false;
@@ -1055,7 +1041,7 @@ public class PhoneSystemUtil extends Activity{
             File[] files = dir.listFiles(new CpuFilter());
             //Return the number of cores (virtual CPU devices)
             return files.length;
-        } catch(Exception e) {
+        } catch (Exception e) {
             //Default to return 1 core
             return 1;
         }

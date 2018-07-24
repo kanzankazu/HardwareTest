@@ -6,25 +6,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.activity.WaveformActivity"
-    tools:showIn="@layout/activity_main">
-
-    <com..WaveformView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:mode="RECORDING"
-        android:background="#000000"
-        android:id="@+id/waveformView" />
+    tools:context=".ui.activity.WaveformActivity">
 
     <com.newventuresoftware.waveform.WaveformView
+        android:id="@+id/waveformViewRecord"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:mode="PLAYBACK"
-        app:waveformStrokeThickness="1"
-        app:waveformColor="#e5dc33"
-        app:waveformFillColor="#000000"
         android:background="#000000"
-        android:id="@+id/playbackWaveformView" />
+        app:mode="RECORDING" />
+
+    <com.newventuresoftware.waveform.WaveformView
+        android:id="@+id/waveformViewPlayback"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#000000"
+        app:mode="PLAYBACK"
+        app:waveformColor="#ffffff"
+        app:waveformFillColor="#000000"
+        app:waveformStrokeThickness="1" />
 </LinearLayout>
