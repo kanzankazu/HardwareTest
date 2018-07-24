@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -28,6 +31,7 @@ public class CamActivity extends LocalBaseActivity {
     static Camera camera;
     public boolean isRear, isFront;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +112,12 @@ public class CamActivity extends LocalBaseActivity {
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         //HardwareCheckUtil.openRearCamera(CamActivity.this, camera, surfaceHolder);
-        openCamera(0);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                openCamera(0);
+            }
+        }, 1);
         isRear = true;
     }
 

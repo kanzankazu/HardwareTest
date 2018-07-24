@@ -1,7 +1,6 @@
 package com.kanzankazu.hardwaretest.activity;
 
 
-
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
