@@ -88,17 +88,20 @@ public class ButtonActivity extends LocalBaseActivity {
                 Toast.makeText(getApplicationContext(), "Finish", Toast.LENGTH_SHORT).show();
             }
             //event.startTracking(); // Needed to track long presses
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        }
+        else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             if (isVolumeDown) {
                 tvSensorReadingfvbi.setText("Tekan Tombol Power");
                 isVolumeDown = false;
                 isPower = true;
+                return true;
             }
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             if (isVolumeUp) {
                 tvSensorReadingfvbi.setText("Tekan Tombol Volume -");
                 isVolumeUp = false;
                 isVolumeDown = true;
+                return true;
             }
         }
         return super.onKeyDown(keyCode, event);
