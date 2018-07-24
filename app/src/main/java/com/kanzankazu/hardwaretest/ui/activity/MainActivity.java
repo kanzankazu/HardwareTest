@@ -45,7 +45,7 @@ public class MainActivity extends LocalBaseActivity {
     private TextView tvMainInfofvbi;
     private RecyclerView rvMainfvbi;
     private ProgressBar pbMainfvbi;
-    private Button bMainTesfvbi;
+    private Button bMainTesfvbi,bWaveform;
     private MainCheckAdapter mainCheckAdapter;
     private Dialog dialogCheckSystem, dialogCheckAccelerometers, dialogCheckProximitys;
     private SensorManager sensorManager;
@@ -57,6 +57,7 @@ public class MainActivity extends LocalBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -72,10 +73,12 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     private void initComponent() {
+
         tvMainInfofvbi = (TextView) findViewById(R.id.tvMainInfo);
         rvMainfvbi = (RecyclerView) findViewById(R.id.rvMain);
         pbMainfvbi = (ProgressBar) findViewById(R.id.pbMain);
         bMainTesfvbi = (Button) findViewById(R.id.bMainTes);
+        bWaveform = (Button) findViewById(R.id.bWaveform);
     }
 
     private void initContent() {
@@ -99,12 +102,19 @@ public class MainActivity extends LocalBaseActivity {
 
     }
 
+
     private void initListener() {
         bMainTesfvbi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 doCheck();
                 bMainTesfvbi.setEnabled(false);
+            }
+        });
+        bWaveform.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,WaveformActivity.class));
             }
         });
     }
@@ -509,7 +519,8 @@ public class MainActivity extends LocalBaseActivity {
         }*/
     }
 
-    private void checkProximity() {
+    private void checkProximity()
+    {
         if (HardwareCheckUtil.checkSensor(MainActivity.this, "Proximity", PackageManager.FEATURE_SENSOR_PROXIMITY, Sensor.TYPE_PROXIMITY)) {
             Intent intent = new Intent(MainActivity.this, ProxActivity.class);
             startActivityForResult(intent, KEY_INTENT_PROXIMITY);
