@@ -43,7 +43,7 @@ import static java.util.jar.Pack200.Packer.ERROR;
 public class PhoneSystemUtil extends Activity{
 
     public static String getDataPhone(Activity activity) {
-        return  "Device Model : "                   + getPhoneModel()
+        return  "Device Model : "                   + getPhoneModel2(activity)
                 + "\n Android Version  : "          + getOSAndroid()
                 + "\n Current Security Patch : "    + getOSAndroidVersionSecurityPatch()
                 + "\n Board : "                     + getCPUManufacture(activity)
@@ -204,7 +204,46 @@ public class PhoneSystemUtil extends Activity{
         return String.format("%.2f", Float.valueOf(z) / 1000000) + " GHz";
     }*/
 
+    public static String loadJSONFromAsset2(Context context) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            InputStream is = context.getAssets().open("phone.json");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
 
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            bufferedReader.close();
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static String getPhoneModel2(Context context) {
+        String model=null;
+        try {
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset2(context));
+
+            for(int i=0;i<jsonArray.length();i++)
+            {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                if (String.valueOf(Build.MODEL).equals(jsonObject.getString("model"))) {
+                    model = jsonObject.getString("marketing-name");
+                    break;
+                } else {
+                    model = Build.MODEL;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return model;
+    }
     private static String getSerialnumberBoard() {
         return Build.SERIAL;
     }
