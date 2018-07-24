@@ -1,0 +1,80 @@
+[
+{"id": "hi6210", "name": "620", "ddr": ""},
+{"id": "hi6250", "name": "650", "ddr": ""},
+{"id": "hi6620oem", "name": "910", "ddr": ""},
+
+{"id": "hi3630", "name": "920", "ddr": ""},
+{"id": "hi3635", "name": "930", "ddr": ""},
+
+{"id": "hi3650", "name": "950", "ddr": ""},
+{"id": "hi3660", "name": "960", "ddr": ""},
+
+{"id": "kirin970", "name": "970", "ddr": ""},
+{"id": "mt6755", "name": "P10 series"},
+{"id": "mt6757", "name": "P20 series"},
+{"id": "mt6759", "name": "P30 series"},
+
+{"id": "mt6763", "name": "P23"},
+
+{"id": "mt6771", "name": "P60"},
+
+{"id": "mt6795", "name": "X10 series"},
+{"id": "mt6797", "name": "X20 series"},
+{"id": "mt6799", "name": "X30 series"},
+
+{"id": "msm8210", "name": "200", "ddr": ""},
+{"id": "msm8212", "name": "200", "ddr": ""},
+{"id": "msm8610", "name": "200", "ddr": ""},
+{"id": "msm8909", "name": "210", "ddr": ""},
+{"id": "apq8909", "name": "212", "ddr": ""},
+
+{"id": "msm8226", "name": "400", "ddr": ""},
+{"id": "msm8228", "name": "400", "ddr": ""},
+{"id": "msm8926", "name": "400", "ddr": ""},
+{"id": "msm8928", "name": "400", "ddr": ""},
+
+{"id": "msm8216", "name": "410", "ddr": ""},
+{"id": "msm8916", "name": "410", "ddr": "LPDDR3"},
+{"id": "msm8929", "name": "415", "ddr": "LPDDR3"},
+{"id": "msm8917", "name": "425", "ddr": "LPDDR3"},
+{"id": "msm8920", "name": "427", "ddr": "LPDDR3"},
+{"id": "msm8937", "name": "430", "ddr": "LPDDR3"},
+{"id": "msm8940", "name": "435", "ddr": "LPDDR3"},
+
+{"id": "msm8936", "name": "610", "ddr": "LPDDR3"},
+{"id": "msm8939", "name": "615", "ddr": "LPDDR3"},
+{"id": "msm8952", "name": "617", "ddr": "LPDDR3"},
+
+{"id": "msm8953", "name": "625", "ddr": "LPDDR3"},
+{"id": "msm8953pro", "name": "626", "ddr": "LPDDR3"},
+{"id": "apq8053", "name": "625", "ddr": "LPDDR3"},
+
+{"id": "msm8956", "name": "650", "ddr": "LPDDR3"},
+
+{"id": "msm8976",    "name": "652", "ddr": "LPDDR3"},
+{"id": "msm8976pro", "name": "653", "ddr": "LPDDR3"},
+{"id": "msm8976sg",  "name": "653", "ddr": "LPDDR3"},
+
+{"id": "msm8974", "name": "800", "ddr": "LPDDR3"},
+{"id": "msm8974pro", "name": "801", "ddr": "LPDDR3"},
+
+{"id": "apq8084", "name": "805", "ddr": "LPDDR3"},
+
+{"id": "msm8992", "name": "808", "ddr": "LPDDR3"},
+{"id": "msm8994", "name": "810", "ddr": "LPDDR4"},
+
+{"id": "msm8996", "name": "820", "ddr": "LPDDR4"},
+{"id": "msm8996pro", "name": "821", "ddr": "LPDDR4"},
+{"id": "msm8998", "name": "835", "ddr": "LPDDR4"},
+
+{"id": "sdm845", "name": "845", "ddr": "LPDDR4"},
+
+{"id": "sdm710", "name": "710", "ddr": "LPDDR4"},
+
+{"id": "sdm660", "name": "660", "ddr": "LPDDR4"},
+{"id": "sdm636", "name": "636", "ddr": "LPDDR4"},
+{"id": "sdm630", "name": "630", "ddr": "LPDDR4"},
+
+{"id": "sdm450", "name": "450", "ddr": "LPDDR3"}
+
+]

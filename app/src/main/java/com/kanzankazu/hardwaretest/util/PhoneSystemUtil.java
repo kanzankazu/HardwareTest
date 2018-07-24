@@ -121,10 +121,14 @@ public class PhoneSystemUtil extends Activity{
         return Build.VERSION.SECURITY_PATCH;
     }
 
+    public static String firstTwo(String str) {
+        return str.length() < 2 ? str : str.substring(0, 2);
+    }
+
     public static String loadJSONFromAsset(Context context) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            InputStream is = context.getAssets().open("cpu_snapdragon.json");
+            InputStream is = context.getAssets().open("cpu.json");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -140,8 +144,10 @@ public class PhoneSystemUtil extends Activity{
 
         return null;
     }
+
     private static String getCPUManufacture(Context context) {
         String name = null,id=null,devicesoc=null,manufacture=null,board=null;
+        String a = firstTwo(Build.BOARD);
         try {
             JSONArray jsonArray = new JSONArray(loadJSONFromAsset(context));
 
@@ -155,7 +161,15 @@ public class PhoneSystemUtil extends Activity{
                     board = Build.BOARD;
                 }
             }
-            devicesoc= Build.HARDWARE + " " + board;
+            if(a.equals("ms")||a.equals("ap")||a.equals("sd")) {
+                devicesoc = "Qualcomm Snapdragon " + board;
+            }
+            else if(a.equals("mt")){
+                devicesoc = "Mediatek " + board;
+            }
+            else if(a.equals("hi")||a.equals("ki")){
+                devicesoc = "Hi-Silicon Kirin " + board;
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
