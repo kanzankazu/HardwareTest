@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.MainActivity">
+    tools:context=".ui.activity.MainActivity">
 
     <TextView
         android:id="@+id/tvMainInfo"
@@ -43,6 +43,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Mulai Tes" />
+
+        <Button
+            android:id="@+id/bWaveform"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Waveform" />
     </LinearLayout>
 
 </LinearLayout>

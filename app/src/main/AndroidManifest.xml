@@ -64,6 +64,9 @@
         <activity
             android:name=".ui.activity.ScreenActivity"
             android:theme="@style/AppTheme.FullScreen" />
+        <activity
+            android:name=".ui.activity.WaveformActivity"
+            android:theme="@style/AppTheme.FullScreen" />
 
 
         <service android:name="com.kanzankazu.hardwaretest.service.LockService">
