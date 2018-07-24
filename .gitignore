@@ -54,7 +54,7 @@ captures/
 .idea/libraries
 
 # Keystore files
-# Uncomment the following line if you do not want to check your keystore files in.
+# Uncomment the following line if you do not want to hardware your keystore files in.
 #*.jks
 
 # External native build folder generated in Android Studio 2.2 and later

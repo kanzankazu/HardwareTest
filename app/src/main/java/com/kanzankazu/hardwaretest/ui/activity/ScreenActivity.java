@@ -1,4 +1,4 @@
-package com.kanzankazu.hardwaretest.activity;
+package com.kanzankazu.hardwaretest.ui.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

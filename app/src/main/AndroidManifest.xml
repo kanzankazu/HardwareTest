@@ -39,7 +39,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:theme="@style/AppTheme.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,22 +47,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ProxActivity"
+            android:name=".ui.activity.ProxActivity"
             android:theme="@style/AppTheme.FullScreen" />
         <activity
-            android:name=".activity.AccelActivity"
+            android:name=".ui.activity.AccelActivity"
             android:theme="@style/AppTheme.FullScreen" />
         <activity
-            android:name=".activity.FingerActivity"
+            android:name=".ui.activity.FingerActivity"
             android:theme="@style/AppTheme.FullScreen" />
         <activity
-            android:name=".activity.ButtonActivity"
+            android:name=".ui.activity.ButtonActivity"
             android:theme="@style/AppTheme.FullScreen" />
         <activity
-            android:name=".activity.CamActivity"
+            android:name=".ui.activity.CamActivity"
             android:theme="@style/AppTheme.FullScreen" />
         <activity
-            android:name=".activity.ScreenActivity"
+            android:name=".ui.activity.ScreenActivity"
             android:theme="@style/AppTheme.FullScreen" />
 
 

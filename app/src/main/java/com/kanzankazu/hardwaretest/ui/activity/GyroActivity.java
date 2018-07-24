@@ -1,4 +1,4 @@
-package com.kanzankazu.hardwaretest.activity;
+package com.kanzankazu.hardwaretest.ui.activity;
 
 
 import android.hardware.Sensor;
@@ -7,7 +7,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
 
 public class GyroActivity extends AppCompatActivity implements SensorEventListener {
 //    private TextView tv;
@@ -20,7 +19,7 @@ public class GyroActivity extends AppCompatActivity implements SensorEventListen
 
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_gyro);
- //       tv = (TextView) findViewById(R.id.txtGyroReport);
+ //       tv = (TextView) findViewById(R.idHardware.txtGyroReport);
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 

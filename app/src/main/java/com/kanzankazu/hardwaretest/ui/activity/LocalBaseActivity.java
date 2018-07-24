@@ -1,4 +1,4 @@
-package com.kanzankazu.hardwaretest.activity;
+package com.kanzankazu.hardwaretest.ui.activity;
 
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;

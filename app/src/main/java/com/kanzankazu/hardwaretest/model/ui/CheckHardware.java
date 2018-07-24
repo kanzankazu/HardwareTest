@@ -1,6 +1,6 @@
 package com.kanzankazu.hardwaretest.model.ui;
 
-public class CheckModel {
+public class CheckHardware {
     public static final int UNCHECKING = 0;
     public static final int CHECKING = 1;
     public static final int CHECK_DONE = 2;
@@ -11,11 +11,11 @@ public class CheckModel {
     String value;
     int status;
 
-    public CheckModel() {
+    public CheckHardware() {
 
     }
 
-    public CheckModel(int id, String modul) {
+    public CheckHardware(int id, String modul) {
         this.id = id;
         this.modul = modul;
     }

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:background="@android:color/black"
-    tools:context=".Touchscreen2Activity">
+    tools:context=".ui.activity.CamActivity">
 
     <TextView
         android:id="@+id/tvcountDown"
