@@ -1,5 +1,6 @@
 package com.newventuresoftware.waveform;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -12,10 +13,13 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.newventuresoftware.waveform.utils.*;
 
+import java.io.DataInputStream;
 import java.util.LinkedList;
 
 /**
@@ -110,7 +114,7 @@ public class WaveformView extends View {
         width = getMeasuredWidth();
         height = getMeasuredHeight();
         xStep = width / (mAudioLength * 1.0f);
-        centerY = height / 1f;
+        centerY = height / 2f;
         drawRect = new Rect(0, 0, width, height);
 
         if (mHistoricalData != null) {
@@ -233,6 +237,7 @@ public class WaveformView extends View {
         }
     }
 
+    public String a;
     void drawRecordingWaveform(short[] buffer, float[] waveformPoints) {
         float lastX = -1;
         float lastY = -1;
@@ -244,6 +249,7 @@ public class WaveformView extends View {
         for (int x = 0; x < width; x++) {
             int index = (int) (((x * 1.0f) / width) * buffer.length);
             short sample = buffer[index];
+
             float y = centerY - ((sample / max) * centerY);
 
             if (lastX != -1) {
@@ -252,11 +258,11 @@ public class WaveformView extends View {
                 waveformPoints[pointIndex++] = x;
                 waveformPoints[pointIndex++] = y;
             }
-
             lastX = x;
             lastY = y;
         }
     }
+
 
     Path drawPlaybackWaveform(int width, int height, short[] buffer) {
         Path waveformPath = new Path();
@@ -272,6 +278,7 @@ public class WaveformView extends View {
         for (int x = 0; x < width; x++) {
             short sample = extremes[x][0];
             float y = centerY - ((sample / max) * centerY);
+            Log.i("This is y = ", String.valueOf(y));
             waveformPath.lineTo(x, y);
         }
 
