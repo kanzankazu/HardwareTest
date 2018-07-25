@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Hardware Test</string>
+    <string name="text_premain">Prepare with turn on data connection, wifi, bluetooth, and gps for better result.</string>
 </resources>

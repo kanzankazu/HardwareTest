@@ -57,7 +57,7 @@ public class MainActivity extends LocalBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        startActivity(new Intent(MainActivity.this,PremainActivity.class));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
