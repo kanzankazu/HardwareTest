@@ -110,7 +110,7 @@ public class WaveformView extends View {
         width = getMeasuredWidth();
         height = getMeasuredHeight();
         xStep = width / (mAudioLength * 1.0f);
-        centerY = height / 2f;
+        centerY = height / 1f;
         drawRect = new Rect(0, 0, width, height);
 
         if (mHistoricalData != null) {
