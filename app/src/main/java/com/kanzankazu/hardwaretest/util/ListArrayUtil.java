@@ -147,6 +147,14 @@ public class ListArrayUtil {
         Arrays.sort(array);
         return Arrays.binarySearch(array, key) >= 0;
     }
+    public static boolean isIntArrayContainInt2(final short[] array, final int key) {
+        for(int i=0;i<array.length;i++){
+            if(array[i]>key) {
+              return true;
+            }
+        }
+        return false;
+    }
 
     public static boolean isListContainString(List<String> sourceList, String s) {
         return sourceList.contains(s);

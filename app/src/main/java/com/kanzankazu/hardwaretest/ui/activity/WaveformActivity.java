@@ -3,19 +3,25 @@ package com.kanzankazu.hardwaretest.ui.activity;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.firebase.database.Transaction;
 import com.kanzankazu.hardwaretest.R;
 import com.kanzankazu.hardwaretest.ui.adapter.AudioDataReceivedListener;
 import com.kanzankazu.hardwaretest.ui.adapter.PlaybackListener;
 import com.kanzankazu.hardwaretest.ui.adapter.PlaybackThread;
 import com.kanzankazu.hardwaretest.ui.adapter.RecordingThread;
+import com.kanzankazu.hardwaretest.util.ListArrayUtil;
 import com.newventuresoftware.waveform.WaveformView;
 
 import org.apache.commons.io.IOUtils;
@@ -25,6 +31,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 
 public class WaveformActivity extends AppCompatActivity {
 
@@ -33,7 +40,8 @@ public class WaveformActivity extends AppCompatActivity {
     private RecordingThread mRecordingThread;
     private PlaybackThread mPlaybackThread;
     private static final int REQUEST_RECORD_AUDIO = 13;
-    private FloatingActionButton fabRecordfvbi, fabPlayfvbi;
+//    private FloatingActionButton fabRecordfvbi, fabPlayfvbi;
+  //  private Button bStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +54,26 @@ public class WaveformActivity extends AppCompatActivity {
 
         waveformViewRecordfvbi = (WaveformView) findViewById(R.id.waveformViewRecord);
         waveformViewPlaybackfvbi = (WaveformView) findViewById(R.id.waveformViewPlayback);
-        fabRecordfvbi = (FloatingActionButton) findViewById(R.id.fabRecord);
+    //    fabRecordfvbi = (FloatingActionButton) findViewById(R.id.fabRecord);
+      //  bStart = (Button) findViewById(R.id.bStart);
 
         mRecordingThread = new RecordingThread(new AudioDataReceivedListener() {
             @Override
             public void onAudioDataReceived(short[] data) {
                 waveformViewRecordfvbi.setSamples(data);
+                Log.i("datanya adl", Arrays.toString(data));
+                ListArrayUtil a= new ListArrayUtil();
+
+                if(ListArrayUtil.isIntArrayContainInt2(data,30000)){
+                    Log.i("datanya2"," ok");
+                    mRecordingThread.stopRecording();
+                    mPlaybackThread.stopPlayback();
+                    Handler()
+                }
             }
         });
 
-        fabRecordfvbi.setOnClickListener(new View.OnClickListener() {
+        /*fabRecordfvbi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!mRecordingThread.recording()) {
@@ -64,7 +82,7 @@ public class WaveformActivity extends AppCompatActivity {
                     mRecordingThread.stopRecording();
                 }
             }
-        });
+        });*/
 
         short[] samples = null;
         try {
@@ -72,9 +90,23 @@ public class WaveformActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Log.i("datanya adl",String.valueOf(samples));
 
+/*        bStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mPlaybackThread.playing()) {
+                    startAudioRecordingSafe();
+                    mPlaybackThread.startPlayback();
+                } else {
+                    mPlaybackThread.stopPlayback();
+                    mRecordingThread.stopRecording();
+                }
+            }
+        });
+*/
         if (samples != null) {
-            fabPlayfvbi = (FloatingActionButton) findViewById(R.id.fabPlay);
+  //          fabPlayfvbi = (FloatingActionButton) findViewById(R.id.fabPlay);
 
             mPlaybackThread = new PlaybackThread(samples, new PlaybackListener() {
                 @Override
@@ -85,14 +117,14 @@ public class WaveformActivity extends AppCompatActivity {
                 @Override
                 public void onCompletion() {
                     waveformViewPlaybackfvbi.setMarkerPosition(waveformViewPlaybackfvbi.getAudioLength());
-                    fabPlayfvbi.setImageResource(android.R.drawable.ic_media_play);
+    //                fabPlayfvbi.setImageResource(android.R.drawable.ic_media_play);
                 }
             });
             waveformViewPlaybackfvbi.setChannels(1);
             waveformViewPlaybackfvbi.setSampleRate(PlaybackThread.SAMPLE_RATE);
             waveformViewPlaybackfvbi.setSamples(samples);
 
-            fabPlayfvbi.setOnClickListener(new View.OnClickListener() {
+      /*      fabPlayfvbi.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!mPlaybackThread.playing()) {
@@ -104,6 +136,15 @@ public class WaveformActivity extends AppCompatActivity {
                     }
                 }
             });
+            */
+            if (!mPlaybackThread.playing()) {
+                mRecordingThread.stopRecording();
+                startAudioRecordingSafe();
+                mPlaybackThread.startPlayback();
+            } else {
+                mPlaybackThread.stopPlayback();
+                mRecordingThread.stopRecording();
+            }
         }
     }
 
@@ -125,6 +166,7 @@ public class WaveformActivity extends AppCompatActivity {
             mRecordingThread.startRecording();
         } else {
             requestMicrophonePermission();
+
         }
     }
 
@@ -148,6 +190,7 @@ public class WaveformActivity extends AppCompatActivity {
         byte[] data;
         try {
             data = IOUtils.toByteArray(is);
+
         } finally {
             if (is != null) {
                 is.close();
@@ -156,6 +199,7 @@ public class WaveformActivity extends AppCompatActivity {
 
         ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
         short[] samples = new short[sb.limit()];
+//        Log.i("datanya adl",String.valueOf(samples));
         sb.get(samples);
         return samples;
     }
@@ -163,7 +207,6 @@ public class WaveformActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
         mRecordingThread.stopRecording();
         mPlaybackThread.stopPlayback();
     }
