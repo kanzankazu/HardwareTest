@@ -1,7 +1,10 @@
 
 package com.kanzankazu.hardwaretest.ui.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -40,8 +43,6 @@ public class WaveformActivity extends AppCompatActivity {
     private RecordingThread mRecordingThread;
     private PlaybackThread mPlaybackThread;
     private static final int REQUEST_RECORD_AUDIO = 13;
-//    private FloatingActionButton fabRecordfvbi, fabPlayfvbi;
-  //  private Button bStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +53,14 @@ public class WaveformActivity extends AppCompatActivity {
         initContent();
         initListener();
 
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        if(audioManager.isWiredHeadsetOn()==true){
+            Toast.makeText(this, "Lepaskan headset.. dan mulai test kembali", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         waveformViewRecordfvbi = (WaveformView) findViewById(R.id.waveformViewRecord);
         waveformViewPlaybackfvbi = (WaveformView) findViewById(R.id.waveformViewPlayback);
-    //    fabRecordfvbi = (FloatingActionButton) findViewById(R.id.fabRecord);
-      //  bStart = (Button) findViewById(R.id.bStart);
 
         mRecordingThread = new RecordingThread(new AudioDataReceivedListener() {
             @Override
@@ -64,25 +69,15 @@ public class WaveformActivity extends AppCompatActivity {
                 Log.i("datanya adl", Arrays.toString(data));
                 ListArrayUtil a= new ListArrayUtil();
 
-                if(ListArrayUtil.isIntArrayContainInt2(data,30000)){
+                if(ListArrayUtil.isIntArrayContainInt2(data,40000)){
                     Log.i("datanya2"," ok");
                     mRecordingThread.stopRecording();
                     mPlaybackThread.stopPlayback();
-                    Handler()
+                    setResult(Activity.RESULT_OK);
+                    finish();
                 }
             }
         });
-
-        /*fabRecordfvbi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!mRecordingThread.recording()) {
-                    startAudioRecordingSafe();
-                } else {
-                    mRecordingThread.stopRecording();
-                }
-            }
-        });*/
 
         short[] samples = null;
         try {
@@ -92,22 +87,7 @@ public class WaveformActivity extends AppCompatActivity {
         }
         Log.i("datanya adl",String.valueOf(samples));
 
-/*        bStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mPlaybackThread.playing()) {
-                    startAudioRecordingSafe();
-                    mPlaybackThread.startPlayback();
-                } else {
-                    mPlaybackThread.stopPlayback();
-                    mRecordingThread.stopRecording();
-                }
-            }
-        });
-*/
         if (samples != null) {
-  //          fabPlayfvbi = (FloatingActionButton) findViewById(R.id.fabPlay);
-
             mPlaybackThread = new PlaybackThread(samples, new PlaybackListener() {
                 @Override
                 public void onProgress(int progress) {
@@ -117,26 +97,12 @@ public class WaveformActivity extends AppCompatActivity {
                 @Override
                 public void onCompletion() {
                     waveformViewPlaybackfvbi.setMarkerPosition(waveformViewPlaybackfvbi.getAudioLength());
-    //                fabPlayfvbi.setImageResource(android.R.drawable.ic_media_play);
                 }
             });
             waveformViewPlaybackfvbi.setChannels(1);
             waveformViewPlaybackfvbi.setSampleRate(PlaybackThread.SAMPLE_RATE);
             waveformViewPlaybackfvbi.setSamples(samples);
 
-      /*      fabPlayfvbi.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!mPlaybackThread.playing()) {
-                        mPlaybackThread.startPlayback();
-                        fabPlayfvbi.setImageResource(android.R.drawable.ic_media_pause);
-                    } else {
-                        mPlaybackThread.stopPlayback();
-                        fabPlayfvbi.setImageResource(android.R.drawable.ic_media_play);
-                    }
-                }
-            });
-            */
             if (!mPlaybackThread.playing()) {
                 mRecordingThread.stopRecording();
                 startAudioRecordingSafe();
@@ -236,5 +202,12 @@ public class WaveformActivity extends AppCompatActivity {
         if (requestCode == REQUEST_RECORD_AUDIO && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             mRecordingThread.stopRecording();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(Activity.RESULT_CANCELED);
+        finish();
+        overridePendingTransition(R.anim.masuk_dari_kiri_ke_kanan, R.anim.keluar_ke_kanan);
     }
 }
