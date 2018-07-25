@@ -62,8 +62,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.7'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
+    //Library for Waveform Hz
     implementation "commons-io:commons-io:+"
-    implementation project (':waveform')
-
+    implementation project(':waveform')
+    //Library for Switch Activity Slide
+    implementation 'com.r0adkll:slidableactivity:2.0.6'
 }
-

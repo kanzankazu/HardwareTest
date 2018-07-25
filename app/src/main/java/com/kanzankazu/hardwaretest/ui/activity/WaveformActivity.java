@@ -144,7 +144,7 @@ public class WaveformActivity extends AppCompatActivity {
     }
 
     private short[] getAudioSample() throws IOException {
-        InputStream is = getResources().openRawResource(R.raw.jinglebells);
+        InputStream is = getResources().openRawResource(R.raw.audio);
         byte[] data;
         try {
             data = IOUtils.toByteArray(is);
