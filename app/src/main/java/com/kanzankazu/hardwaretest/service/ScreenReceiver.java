@@ -11,11 +11,11 @@ public class ScreenReceiver extends BroadcastReceiver {
     @SuppressLint("LongLogTag")
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+        if (intent.getAction().equalsIgnoreCase(Intent.ACTION_SCREEN_OFF)) {
             wasScreenOn = true;
-        } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+        } else if (intent.getAction().equalsIgnoreCase(Intent.ACTION_SCREEN_ON)) {
             //wasScreenOn = true;
-        } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+        } else if (intent.getAction().equalsIgnoreCase(Intent.ACTION_USER_PRESENT)) {
             //wasScreenOn = true;
         }
     }

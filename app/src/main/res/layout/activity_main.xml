@@ -45,11 +45,12 @@
             android:text="Mulai Tes" />
 
         <Button
-            android:id="@+id/bMainWaveform"
+            android:id="@+id/bMainTes2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Waveform" />
+            android:text="Mulai Tes lain" />
+
     </LinearLayout>
 
 </LinearLayout>

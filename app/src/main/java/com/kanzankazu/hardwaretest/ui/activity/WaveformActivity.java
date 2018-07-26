@@ -3,22 +3,18 @@ package com.kanzankazu.hardwaretest.ui.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
-import com.google.firebase.database.Transaction;
 import com.kanzankazu.hardwaretest.R;
 import com.kanzankazu.hardwaretest.ui.adapter.AudioDataReceivedListener;
 import com.kanzankazu.hardwaretest.ui.adapter.PlaybackListener;
@@ -34,7 +30,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 public class WaveformActivity extends AppCompatActivity {
 
@@ -49,28 +44,59 @@ public class WaveformActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waveform);
 
-        initComponent();
-        initContent();
-        initListener();
+        startCheck();
 
-        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        if(audioManager.isWiredHeadsetOn()==true){
-            Toast.makeText(this, "Lepaskan headset.. dan mulai test kembali", Toast.LENGTH_SHORT).show();
-            finish();
+    }
+
+    private void startCheck() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager.isWiredHeadsetOn()) {
+            dialogCheckHeadset();
+        } else {
+            initComponent();
+            initContent();
+            initListener();
         }
+    }
 
+    private void dialogCheckHeadset() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setMessage("Lepaskan headset / headphone anda?");
+        alertDialogBuilder.setPositiveButton("Sudah",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        startCheck();
+                    }
+                });
+        /*alertDialogBuilder.setNegativeButton("Belum",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+
+                    }
+                });*/
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void initComponent() {
         waveformViewRecordfvbi = (WaveformView) findViewById(R.id.waveformViewRecord);
         waveformViewPlaybackfvbi = (WaveformView) findViewById(R.id.waveformViewPlayback);
+    }
+
+    private void initContent() {
+
+        waveformViewPlaybackfvbi.setVisibility(View.GONE);
 
         mRecordingThread = new RecordingThread(new AudioDataReceivedListener() {
             @Override
             public void onAudioDataReceived(short[] data) {
                 waveformViewRecordfvbi.setSamples(data);
-                Log.i("datanya adl", Arrays.toString(data));
-                ListArrayUtil a= new ListArrayUtil();
+                ListArrayUtil a = new ListArrayUtil();
 
-                if(ListArrayUtil.isIntArrayContainInt2(data,40000)){
-                    Log.i("datanya2"," ok");
+                if (ListArrayUtil.isIntArrayContainInt2(data, 10000)) {
                     mRecordingThread.stopRecording();
                     mPlaybackThread.stopPlayback();
                     setResult(Activity.RESULT_OK);
@@ -85,7 +111,6 @@ public class WaveformActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.i("datanya adl",String.valueOf(samples));
 
         if (samples != null) {
             mPlaybackThread = new PlaybackThread(samples, new PlaybackListener() {
@@ -112,14 +137,6 @@ public class WaveformActivity extends AppCompatActivity {
                 mRecordingThread.stopRecording();
             }
         }
-    }
-
-    private void initComponent() {
-
-    }
-
-    private void initContent() {
-
     }
 
     private void initListener() {

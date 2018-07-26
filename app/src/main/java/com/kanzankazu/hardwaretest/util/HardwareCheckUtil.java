@@ -391,9 +391,9 @@ public class HardwareCheckUtil {
 
     public static boolean isFlashOn(Camera camera) {
         Camera.Parameters parameters = camera.getParameters();
-        if (parameters.getFlashMode().equals("FLASH_MODE_TORCH")) {
+        if (parameters.getFlashMode().equalsIgnoreCase("FLASH_MODE_TORCH")) {
             return true;
-        } else if (parameters.getFlashMode().equals("FLASH_MODE_OFF")) {
+        } else if (parameters.getFlashMode().equalsIgnoreCase("FLASH_MODE_OFF")) {
             return false;
         }
         return false;

@@ -50,7 +50,7 @@ public class AccelActivity extends LocalBaseActivity {
 
         mySensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mySensor = mySensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        vibrateThreshold = mySensor.getMaximumRange() / 2;
+        vibrateThreshold = mySensor.getMaximumRange() / 3;
 
         if (mySensor != null) {
             mySensorManager.registerListener(sensorEventListener, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -114,7 +114,6 @@ public class AccelActivity extends LocalBaseActivity {
                 lastZ = event.values[2];
 
                 if ((deltaX > vibrateThreshold) || (deltaY > vibrateThreshold) || (deltaZ > vibrateThreshold)) {
-                    //v.vibrate(50);
                     setResult(Activity.RESULT_OK);
                     finish();
                 }

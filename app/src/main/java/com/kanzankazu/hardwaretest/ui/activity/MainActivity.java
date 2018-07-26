@@ -25,7 +25,6 @@ import com.kanzankazu.hardwaretest.R;
 import com.kanzankazu.hardwaretest.model.ui.CheckHardware;
 import com.kanzankazu.hardwaretest.ui.adapter.MainCheckAdapter;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
-import com.kanzankazu.hardwaretest.util.ListArrayUtil;
 import com.kanzankazu.hardwaretest.util.PhoneSystemUtil;
 
 import java.util.ArrayList;
@@ -40,14 +39,14 @@ public class MainActivity extends LocalBaseActivity {
     private static final int KEY_INTENT_PROXIMITY = 2;
     private static final int KEY_INTENT_ACCELEROMETER = 3;
     private static final int KEY_INTENT_BUTTON = 4;
-    private static final int KEY_INTENT_CAM = 6;
-    private static final int KEY_INTENT_SCREEN = 7;
-    private static final int KEY_INTENT_MIC = 8;
+    private static final int KEY_INTENT_CAM = 5;
+    private static final int KEY_INTENT_SCREEN = 6;
+    private static final int KEY_INTENT_MIC = 7;
 
     private TextView tvMainInfofvbi;
     private RecyclerView rvMainfvbi;
     private ProgressBar pbMainfvbi;
-    private Button bMainTesfvbi, bWaveform;
+    private Button bMainTes2fvbi, bMainTesfvbi;
     private MainCheckAdapter mainCheckAdapter;
     private Dialog dialogCheckSystem, dialogCheckAccelerometers, dialogCheckProximitys;
     private SensorManager sensorManager;
@@ -55,11 +54,20 @@ public class MainActivity extends LocalBaseActivity {
     private boolean isSensorProximity;
     private List<Integer> connListStatus = new ArrayList<>();
     private List<Integer> sensListStatus = new ArrayList<>();
-    ;
+    private int checkamount;
+    String[] stringsCheck = new String[]{
+            "Hardware (CPU,RAM,ROM,Battery,ETC)",
+            "Koneksi (Wifi,Bluetooth,GPS,Mobile data)",
+            "Sensor (Gyroscope, Proximity, Compass)",
+            "Tombol Volume + Daya",
+            "Kamera Depan & Belakang",
+            "Layar Sentuh",
+            "Mikrofon"};
+    private int progressState = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        startActivity(new Intent(MainActivity.this,PremainActivity.class));
+        //startActivity(new Intent(MainActivity.this, PremainActivity.class));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -67,10 +75,10 @@ public class MainActivity extends LocalBaseActivity {
             finish();
             Toast.makeText(getApplicationContext(), "Perangkat anda sudah di root", Toast.LENGTH_SHORT).show();// Set your own toast  message
         } else {
+            initPermissions();
             initComponent();
             initContent();
             initListener();
-            initPermissions();
         }
     }
 
@@ -79,11 +87,17 @@ public class MainActivity extends LocalBaseActivity {
         rvMainfvbi = (RecyclerView) findViewById(R.id.rvMain);
         pbMainfvbi = (ProgressBar) findViewById(R.id.pbMain);
         bMainTesfvbi = (Button) findViewById(R.id.bMainTes);
-        bWaveform = (Button) findViewById(R.id.bMainWaveform);
+        bMainTes2fvbi = (Button) findViewById(R.id.bMainTes2);
     }
 
     private void initContent() {
 
+        dialogStartInformation();
+
+        //initSensor
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        //init adapter
         List<CheckHardware> checkHardwares = new ArrayList<>();
         rvMainfvbi.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mainCheckAdapter = new MainCheckAdapter(this, this, checkHardwares);
@@ -91,20 +105,26 @@ public class MainActivity extends LocalBaseActivity {
 
         pbMainfvbi.setProgress(0);
 
-        mainCheckAdapter.addModel(new CheckHardware(1, "Hardware (CPU,RAM,ROM,Battery,ETC)"));
+        checkamount = stringsCheck.length + 1;
+
+        for (int i = 0; i < stringsCheck.length; i++) {
+            mainCheckAdapter.addModel(new CheckHardware(i + 1, stringsCheck[i]));
+        }
+        mainCheckAdapter.notifyDataSetChanged();
+        /*mainCheckAdapter.addModel(new CheckHardware(1, "Hardware (CPU,RAM,ROM,Battery,ETC)"));
         mainCheckAdapter.addModel(new CheckHardware(2, "Koneksi (Wifi,Bluetooth,GPS,Mobile data)"));
         mainCheckAdapter.addModel(new CheckHardware(3, "Sensor (Gyroscope, Proximity, Compass)"));
-        mainCheckAdapter.addModel(new CheckHardware(4, "Tombol Volume"));
-        mainCheckAdapter.addModel(new CheckHardware(5, "Tombol Daya"));
-        mainCheckAdapter.addModel(new CheckHardware(6, "Kamera Depan & Belakang"));
-        mainCheckAdapter.addModel(new CheckHardware(7, "Layar Sentuh"));
-        mainCheckAdapter.addModel(new CheckHardware(8, "Mikrofon"));
-        mainCheckAdapter.notifyDataSetChanged();
-
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mainCheckAdapter.addModel(new CheckHardware(4, "Tombol Volume + Daya"));
+        mainCheckAdapter.addModel(new CheckHardware(5, "Kamera Depan & Belakang"));
+        mainCheckAdapter.addModel(new CheckHardware(6, "Layar Sentuh"));
+        mainCheckAdapter.addModel(new CheckHardware(7, "Mikrofon"));
+        mainCheckAdapter.notifyDataSetChanged();*/
 
     }
 
+    private void dialogStartInformation() {
+
+    }
 
     private void initListener() {
         bMainTesfvbi.setOnClickListener(new View.OnClickListener() {
@@ -114,10 +134,10 @@ public class MainActivity extends LocalBaseActivity {
                 bMainTesfvbi.setEnabled(false);
             }
         });
-        bWaveform.setOnClickListener(new View.OnClickListener() {
+        bMainTes2fvbi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, WaveformActivity.class));
+                PhoneSystemUtil.scanPhone(MainActivity.this);
             }
         });
     }
@@ -278,34 +298,30 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     private void resetState() {
-        mainCheckAdapter.updateModelAt(1, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(2, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(3, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(4, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(5, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(6, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(7, CheckHardware.UNCHECKING);
-        mainCheckAdapter.updateModelAt(8, CheckHardware.UNCHECKING);
+        for (int i = 0; i < stringsCheck.length; i++) {
+            mainCheckAdapter.updateModelAt(i + 1, CheckHardware.UNCHECKING);
+        }
         mainCheckAdapter.notifyDataSetChanged();
+
         pbMainfvbi.setProgress(0);
         bMainTesfvbi.setEnabled(true);
     }
 
-    private int checkamount=8;
-    private void setProgresCheck(int i) {
-        if (i == 1) {
-            mainCheckAdapter.updateModelAt(i, CheckHardware.CHECKING);
+    private void progresCheck() {
+        progressState++;
+        if (progressState == 1) {
+            mainCheckAdapter.updateModelAt(progressState, CheckHardware.CHECKING);
             mainCheckAdapter.notifyDataSetChanged();
-            pbMainfvbi.setProgress(100 / checkamount * i);
+            pbMainfvbi.setProgress(100 / checkamount * progressState);
             dialogCheckSystems();
-        } else if (i > 1 && i <= checkamount) {
-            mainCheckAdapter.updateModelAt(i - 1, CheckHardware.CHECK_DONE);
-            mainCheckAdapter.updateModelAt(i, CheckHardware.CHECKING);
+        } else if (progressState > 1 && progressState <= checkamount) {
+            mainCheckAdapter.updateModelAt(progressState - 1, CheckHardware.CHECK_DONE);
+            mainCheckAdapter.updateModelAt(progressState, CheckHardware.CHECKING);
             mainCheckAdapter.notifyDataSetChanged();
-            pbMainfvbi.setProgress(100 / checkamount * i);
-        } else if (i > checkamount) {
+            pbMainfvbi.setProgress(100 / checkamount * progressState);
+        } /*else if (i > checkamount) {
             Toast.makeText(getApplicationContext(), "Hardware Done", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     private void doCheck() {
@@ -314,10 +330,11 @@ public class MainActivity extends LocalBaseActivity {
 
     //check system hardware
     private void doCheckSystem() {
-        mainCheckAdapter.updateModelAt(1, CheckHardware.CHECKING);
+        /*mainCheckAdapter.updateModelAt(1, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * 1);
-        dialogCheckSystems();
+        pbMainfvbi.setProgress(100 / checkamount * 1);*/
+        progresCheck();
+        //dialogCheckSystems();
     }
 
     private void dialogCheckSystems() {
@@ -351,11 +368,12 @@ public class MainActivity extends LocalBaseActivity {
 
     //check Connection
     private void doCheckConnection() {
-        mainCheckAdapter.updateModelAt(1, CheckHardware.CHECK_DONE);
+        /*mainCheckAdapter.updateModelAt(1, CheckHardware.CHECK_DONE);
         mainCheckAdapter.updateModelAt(2, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * 2);
+        pbMainfvbi.setProgress(100 / checkamount * 2);*/
 
+        progresCheck();
         checkBluetooth();
     }
 
@@ -486,7 +504,7 @@ public class MainActivity extends LocalBaseActivity {
 
     //check sensor
     private void doCheckSensor() {
-        int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
+        /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
         if (ListArrayUtil.isIntArrayContainInt(ints, CheckHardware.CHECK_ERROR)) {
             mainCheckAdapter.updateModelAt(2, CheckHardware.CHECK_ERROR);
         } else {
@@ -495,8 +513,9 @@ public class MainActivity extends LocalBaseActivity {
         //mainCheckAdapter.updateModelAt(2, CheckHardware.CHECK_DONE);
         mainCheckAdapter.updateModelAt(3, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * 3);
+        pbMainfvbi.setProgress(100 / checkamount * 3);*/
 
+        progresCheck();
         checkFingerprint();
     }
 
@@ -561,7 +580,7 @@ public class MainActivity extends LocalBaseActivity {
 
     //check Tombol
     private void doCheckButton() {
-        int[] ints = ListArrayUtil.convertListIntegertToIntArray(sensListStatus);
+        /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(sensListStatus);
         if (ListArrayUtil.isIntArrayContainInt(ints, CheckHardware.CHECK_ERROR)) {
             mainCheckAdapter.updateModelAt(3, CheckHardware.CHECK_ERROR);
         } else {
@@ -570,8 +589,9 @@ public class MainActivity extends LocalBaseActivity {
         //mainCheckAdapter.updateModelAt(3, CheckHardware.CHECK_DONE);
         mainCheckAdapter.updateModelAt(4, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * 4);
+        pbMainfvbi.setProgress(100 / checkamount * 4);*/
 
+        progresCheck();
         checkButton();
     }
 
@@ -583,10 +603,11 @@ public class MainActivity extends LocalBaseActivity {
 
     //check Kamera
     private void doCheckCamera() {
-        mainCheckAdapter.updateModelAt(6, CheckHardware.CHECKING);
+        /*mainCheckAdapter.updateModelAt(6, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * 6);
+        pbMainfvbi.setProgress(100 / checkamount * 6);*/
 
+        progresCheck();
         checkCamera();
     }
 
@@ -598,10 +619,11 @@ public class MainActivity extends LocalBaseActivity {
 
     //check TouchScreen
     private void doCheckScreen() {
-        mainCheckAdapter.updateModelAt(7, CheckHardware.CHECKING);
+        /*mainCheckAdapter.updateModelAt(7, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * KEY_INTENT_SCREEN);
+        pbMainfvbi.setProgress(100 / checkamount * KEY_INTENT_SCREEN);*/
 
+        progresCheck();
         checkScreen();
     }
 
@@ -613,10 +635,11 @@ public class MainActivity extends LocalBaseActivity {
 
     //Do check Microphone
     private void doCheckMic() {
-        mainCheckAdapter.updateModelAt(8, CheckHardware.CHECKING);
+        /*mainCheckAdapter.updateModelAt(8, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
-        pbMainfvbi.setProgress(100 / checkamount * KEY_INTENT_MIC);
+        pbMainfvbi.setProgress(100 / checkamount * KEY_INTENT_MIC);*/
 
+        progresCheck();
         checkMic();
     }
 

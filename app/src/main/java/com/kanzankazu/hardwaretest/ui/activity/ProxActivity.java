@@ -82,7 +82,7 @@ public class ProxActivity extends LocalBaseActivity {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                if (String.valueOf(event.values[0]).equals("0.0")) {
+                if (String.valueOf(event.values[0]).equalsIgnoreCase("0.0")) {
                     tvSensorReadingfvbi.setText("Proximity sensor covered");
                     a++;
                 } else {

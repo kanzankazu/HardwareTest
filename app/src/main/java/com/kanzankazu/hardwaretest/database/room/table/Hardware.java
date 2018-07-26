@@ -21,6 +21,11 @@ public class Hardware implements Serializable {
     @ColumnInfo(name = "desc_status")
     public String descHardware;
 
+    public Hardware(String nameHardware, String statusHardware) {
+        this.nameHardware = nameHardware;
+        this.statusHardware = statusHardware;
+    }
+
     public int getIdHardware() {
         return idHardware;
     }
