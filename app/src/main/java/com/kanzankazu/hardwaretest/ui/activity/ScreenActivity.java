@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
+import com.kanzankazu.hardwaretest.database.room.AppDatabase;
+import com.kanzankazu.hardwaretest.database.room.table.Hardware;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,6 +57,7 @@ public class ScreenActivity extends AppCompatActivity {
     private CountDownTimer timer;
     private long timeRemaining = 0;
     private boolean isPauseTimer = false;
+    private AppDatabase appDatabase;
 
     public static class CircleView extends View {
         public int i, j;
@@ -140,6 +143,8 @@ public class ScreenActivity extends AppCompatActivity {
 
     private void initContent() {
 
+        appDatabase = new AppDatabase(ScreenActivity.this);
+
         startCounter();
 
         dialogStart();
@@ -175,7 +180,7 @@ public class ScreenActivity extends AppCompatActivity {
                 view.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
                         CircleView view = (CircleView) v;
-                        view.setBackground(ContextCompat.getDrawable(ScreenActivity.this,R.drawable.background_edittext_search));
+                        view.setBackground(ContextCompat.getDrawable(ScreenActivity.this, R.drawable.background_edittext_search));
                         checkOnSuccess(view.i, view.j);
                     }
                 });
@@ -231,6 +236,7 @@ public class ScreenActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 finish();
+                insertDevice("touchscreen", 1, 0);
             }
         };
     }
@@ -249,7 +255,7 @@ public class ScreenActivity extends AppCompatActivity {
     public boolean checkOnSuccess(int i, int j) {
         try {
             //circles[i][j].setBackground(green);
-            circles[i][j].setBackground(ContextCompat.getDrawable(ScreenActivity.this,R.drawable.background_edittext_search));
+            circles[i][j].setBackground(ContextCompat.getDrawable(ScreenActivity.this, R.drawable.background_edittext_search));
             if (!flags[i][j]) {
                 flags[i][j] = true;
                 counter++;
@@ -257,6 +263,7 @@ public class ScreenActivity extends AppCompatActivity {
             if (counter == total) {
                 if (!toastShownFlag) {
                     Toast.makeText(getApplicationContext(), "TEST PASSED", Toast.LENGTH_SHORT).show();
+                    insertDevice("touchscreen", 1, 1);
                     //finish();
                     toastShownFlag = true;
                     //takeScreenshot();
@@ -278,6 +285,25 @@ public class ScreenActivity extends AppCompatActivity {
         return drawable;
     }
 
+    private void insertDevice(String nameDevice, int statusDevice, int descDevice) {
+        String statusDevices = null;
+        String descDevices = null;
+        if (statusDevice == 0) {
+            statusDevices = "tidak ada";
+            descDevices = "";
+        } else if (statusDevice == 1) {
+            statusDevices = "ada";
+            if (descDevice == 0) {
+                descDevices = "rusak";
+            } else if (descDevice == 1) {
+                descDevices = "bagus";
+            } else if (descDevice == 2) {
+                descDevices = "lain-lain";
+            }
+        }
+        appDatabase.insertHardware(new Hardware(nameDevice, statusDevices, descDevices));
+    }
+
     private int calculateSquare(int screenHeight, int screenWidth, int basedOn) {
         int i = basedOn;
         while (i != 0) {
@@ -289,7 +315,6 @@ public class ScreenActivity extends AppCompatActivity {
         throw new RuntimeException("Cannot Calculate!!");
     }
 
-    @SuppressLint("LongLogTag")
     private void takeScreenshot() {
         Date now = new Date();
         android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);

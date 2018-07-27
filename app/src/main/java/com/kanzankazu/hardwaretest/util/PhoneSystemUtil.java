@@ -16,6 +16,9 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.kanzankazu.hardwaretest.database.room.AppDatabase;
+import com.kanzankazu.hardwaretest.database.room.table.Hardware;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,6 +69,13 @@ public class PhoneSystemUtil extends Activity {
     }
 
     public static void scanPhone(Activity activity) {
+        AppDatabase appDatabase = new AppDatabase(activity);
+
+        appDatabase.insertHardware(new Hardware("Device Model", getPhoneModel(), ""));
+        appDatabase.insertHardware(new Hardware("Device Serial Number Board", getSerialnumberBoard(), ""));
+        appDatabase.insertHardware(new Hardware("Device Kernel Version", getKernelVersion(), ""));
+        appDatabase.insertHardware(new Hardware("Device Builder Version", getBuilderVersion(), ""));
+        appDatabase.insertHardware(new Hardware("Device Bootloader Version", getBootloaderVersion(), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getPhoneModel());
         Log.d("Lihat scanPhone PhoneSystemUtil", getSerialnumberBoard());
         Log.d("Lihat scanPhone PhoneSystemUtil", getKernelVersion());
@@ -74,6 +84,9 @@ public class PhoneSystemUtil extends Activity {
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("Display size", getPhoneModel(), ""));
+        appDatabase.insertHardware(new Hardware("Resolution", getSerialnumberBoard(), ""));
+        appDatabase.insertHardware(new Hardware("Pixel density", getKernelVersion(), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getScreenInfo("size", activity));
         Log.d("Lihat scanPhone PhoneSystemUtil", getScreenInfo("resolution", activity));
         Log.d("Lihat scanPhone PhoneSystemUtil", getScreenInfo("dpi", activity));
@@ -82,11 +95,16 @@ public class PhoneSystemUtil extends Activity {
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("Rear camera", getBackCameraResolutionInMp(), ""));
+        appDatabase.insertHardware(new Hardware("Front camera", String.valueOf(getFrontCameraResolutionInMp()), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getBackCameraResolutionInMp());
         Log.d("Lihat scanPhone PhoneSystemUtil", String.valueOf(getFrontCameraResolutionInMp()));
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("System chip", getCPUManufacture(activity), ""));
+        appDatabase.insertHardware(new Hardware("Processor", String.valueOf(getNumberOfCores()), ""));
+        appDatabase.insertHardware(new Hardware("RAM", getTotalRam(), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getCPUManufacture(activity));
         Log.d("Lihat scanPhone PhoneSystemUtil", String.valueOf(getNumberOfCores()));
         //Log.d("Lihat scanPhone PhoneSystemUtil", getCPUFreq());
@@ -97,17 +115,23 @@ public class PhoneSystemUtil extends Activity {
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("OS", getOSAndroid(), ""));
+        appDatabase.insertHardware(new Hardware("OS Security", getOSAndroidVersionSecurityPatch(), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getOSAndroid());
-        Log.d("Lihat scanPhone PhoneSystemUtil", getOSAndroidVersionSecurityPatch());
+        if (DeviceDetailUtil.isMarmellowAbove()) {
+            Log.d("Lihat scanPhone PhoneSystemUtil", getOSAndroidVersionSecurityPatch());
+        }
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("Battery Capacity", String.valueOf(getBatteryCapacity(activity)), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", String.valueOf(getBatteryCapacity(activity)));
         Log.d("Lihat scanPhone PhoneSystemUtil", String.valueOf(getExactBattery(activity)));
         Log.d("Lihat scanPhone PhoneSystemUtil", String.valueOf(getMobileDataState(activity)));
 
         Log.d("Lihat scanPhone PhoneSystemUtil", "");
 
+        appDatabase.insertHardware(new Hardware("Imei Number", getImeiNumber(activity), ""));
         Log.d("Lihat scanPhone PhoneSystemUtil", getImeiNumber(activity));
         Log.d("Lihat scanPhone PhoneSystemUtil", getImeiSV(activity));
         Log.d("Lihat scanPhone PhoneSystemUtil", getOperatorName(activity));
@@ -481,7 +505,11 @@ public class PhoneSystemUtil extends Activity {
     }
 
     private static String getOSAndroidVersionSecurityPatch() {
-        return Build.VERSION.SECURITY_PATCH;
+        if (DeviceDetailUtil.isMarmellowAbove()) {
+            return Build.VERSION.SECURITY_PATCH;
+        } else {
+            return "tidak ada, karena di bawah OS marshmello";
+        }
     }
 
     /**/

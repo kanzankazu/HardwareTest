@@ -1,29 +1,25 @@
 package com.kanzankazu.hardwaretest.database.room.table;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-
 import java.io.Serializable;
 
-@Entity(tableName = "thardware_data")
 public class Hardware implements Serializable {
 
-    @PrimaryKey(autoGenerate = true)
     public int idHardware;
 
-    @ColumnInfo(name = "name_hardware")
     public String nameHardware;
 
-    @ColumnInfo(name = "status_hardware")
     public String statusHardware;
 
-    @ColumnInfo(name = "desc_status")
     public String descHardware;
 
-    public Hardware(String nameHardware, String statusHardware) {
+    public Hardware(String nameHardware, String statusHardware, String descHardware) {
         this.nameHardware = nameHardware;
         this.statusHardware = statusHardware;
+        this.descHardware = descHardware;
+    }
+
+    public Hardware() {
+
     }
 
     public int getIdHardware() {

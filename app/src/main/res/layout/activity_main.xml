@@ -7,7 +7,7 @@
     tools:context=".ui.activity.MainActivity">
 
     <TextView
-        android:id="@+id/tvMainInfo"
+        android:id="@+id/tvMainTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -38,14 +38,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/bMainTes"
+            android:id="@+id/bMainSubmit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Mulai Tes" />
 
         <Button
-            android:id="@+id/bMainTes2"
+            android:id="@+id/bMainSubmit2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

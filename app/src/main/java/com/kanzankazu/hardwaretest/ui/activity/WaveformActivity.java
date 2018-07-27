@@ -16,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.kanzankazu.hardwaretest.R;
+import com.kanzankazu.hardwaretest.database.room.AppDatabase;
+import com.kanzankazu.hardwaretest.database.room.table.Hardware;
 import com.kanzankazu.hardwaretest.ui.adapter.AudioDataReceivedListener;
 import com.kanzankazu.hardwaretest.ui.adapter.PlaybackListener;
 import com.kanzankazu.hardwaretest.ui.adapter.PlaybackThread;
@@ -38,6 +40,7 @@ public class WaveformActivity extends AppCompatActivity {
     private RecordingThread mRecordingThread;
     private PlaybackThread mPlaybackThread;
     private static final int REQUEST_RECORD_AUDIO = 13;
+    private AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,8 @@ public class WaveformActivity extends AppCompatActivity {
 
     private void initContent() {
 
+        appDatabase = new AppDatabase(WaveformActivity.this);
+
         waveformViewPlaybackfvbi.setVisibility(View.GONE);
 
         mRecordingThread = new RecordingThread(new AudioDataReceivedListener() {
@@ -100,6 +105,7 @@ public class WaveformActivity extends AppCompatActivity {
                     mRecordingThread.stopRecording();
                     mPlaybackThread.stopPlayback();
                     setResult(Activity.RESULT_OK);
+                    insertDevice("microphone", 1, 1);
                     finish();
                 }
             }
@@ -135,12 +141,32 @@ public class WaveformActivity extends AppCompatActivity {
             } else {
                 mPlaybackThread.stopPlayback();
                 mRecordingThread.stopRecording();
+                insertDevice("microphone", 1, 0);
             }
         }
     }
 
     private void initListener() {
 
+    }
+
+    private void insertDevice(String nameDevice, int statusDevice, int descDevice) {
+        String statusDevices = null;
+        String descDevices = null;
+        if (statusDevice == 0) {
+            statusDevices = "tidak ada";
+            descDevices = "";
+        } else if (statusDevice == 1) {
+            statusDevices = "ada";
+            if (descDevice == 0) {
+                descDevices = "rusak";
+            } else if (descDevice == 1) {
+                descDevices = "bagus";
+            } else if (descDevice == 2) {
+                descDevices = "lain-lain";
+            }
+        }
+        appDatabase.insertHardware(new Hardware(nameDevice, statusDevices, descDevices));
     }
 
     private void startAudioRecordingSafe() {

@@ -21,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
+import com.kanzankazu.hardwaretest.database.room.AppDatabase;
+import com.kanzankazu.hardwaretest.database.room.table.Hardware;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
 
 public class CamActivity extends LocalBaseActivity {
@@ -30,6 +32,7 @@ public class CamActivity extends LocalBaseActivity {
     private SurfaceHolder surfaceHolder;
     static Camera camera;
     public boolean isRear, isFront;
+    private AppDatabase appDatabase;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -103,6 +106,8 @@ public class CamActivity extends LocalBaseActivity {
     }
 
     private void initContent() {
+        appDatabase = new AppDatabase(CamActivity.this);
+
         ibCameraSwitchfvbi.setVisibility(View.GONE);
         ibCameraflashfvbi.setVisibility(View.GONE);
 
@@ -117,7 +122,7 @@ public class CamActivity extends LocalBaseActivity {
             public void run() {
                 openCamera(0);
             }
-        }, 1);
+        }, 2000);
         isRear = true;
     }
 
@@ -129,8 +134,7 @@ public class CamActivity extends LocalBaseActivity {
                 camera.setDisplayOrientation(HardwareCheckUtil.setCameraDisplayOrientationInt(CamActivity.this, camId, camera));
                 camera.setPreviewDisplay(surfaceHolder);
                 camera.startPreview();
-            }
-            if (camId == 1) {
+            } else if (camId == 1) {
                 camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
                 camera.setDisplayOrientation(HardwareCheckUtil.setCameraDisplayOrientationInt(CamActivity.this, camId, camera));
                 camera.setPreviewDisplay(surfaceHolder);
@@ -154,13 +158,16 @@ public class CamActivity extends LocalBaseActivity {
             @Override
             public void onClick(View view) {
                 if (isRear) {
+                    insertDevice("rear camera", 1, 1);
                     if (HardwareCheckUtil.ishasFrontCamera(CamActivity.this)) {
                         openCamera(1);
                         isRear = false;
                         isFront = true;
+                        insertDevice("front camera", 1, 1);
                     } else {
                         releaseCameraAndPreview();
                         onBackPressed();
+                        insertDevice("front camera", 0, 1);
                     }
                 } else if (isFront) {
                     camera.stopPreview();
@@ -171,6 +178,25 @@ public class CamActivity extends LocalBaseActivity {
                 }
             }
         });
+    }
+
+    private void insertDevice(String nameDevice, int statusDevice, int descDevice) {
+        String statusDevices = null;
+        String descDevices = null;
+        if (statusDevice == 0) {
+            statusDevices = "tidak ada";
+            descDevices = "";
+        } else if (statusDevice == 1) {
+            statusDevices = "ada";
+            if (descDevice == 0) {
+                descDevices = "rusak";
+            } else if (descDevice == 1) {
+                descDevices = "bagus";
+            } else if (descDevice == 2) {
+                descDevices = "lain-lain";
+            }
+        }
+        appDatabase.insertHardware(new Hardware(nameDevice, statusDevices, descDevices));
     }
 
     @Override

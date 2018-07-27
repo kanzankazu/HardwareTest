@@ -48,8 +48,7 @@ public class GyroActivity extends LocalBaseActivity {
 
         mySensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mySensor = mySensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        vibrateThreshold = mySensor.getMaximumRange() / 2;
-
+        vibrateThreshold = mySensor.getMaximumRange() / 3;
 
         if (mySensor != null) {
             mySensorManager.registerListener(sensorEventListener, mySensor, SensorManager.SENSOR_DELAY_FASTEST);

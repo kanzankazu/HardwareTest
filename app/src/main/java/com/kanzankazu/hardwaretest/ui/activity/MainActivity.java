@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.fingerprint.FingerprintManager;
@@ -22,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kanzankazu.hardwaretest.R;
+import com.kanzankazu.hardwaretest.database.room.AppDatabase;
+import com.kanzankazu.hardwaretest.database.room.table.Hardware;
 import com.kanzankazu.hardwaretest.model.ui.CheckHardware;
 import com.kanzankazu.hardwaretest.ui.adapter.MainCheckAdapter;
 import com.kanzankazu.hardwaretest.util.HardwareCheckUtil;
@@ -42,13 +45,18 @@ public class MainActivity extends LocalBaseActivity {
     private static final int KEY_INTENT_CAM = 5;
     private static final int KEY_INTENT_SCREEN = 6;
     private static final int KEY_INTENT_MIC = 7;
+    public static final String STATUS_DEVICE_TIDAK_ADA = "tidak ada";
+    public static final String STATUS_DEVICE_ADA = "ada";
+    public static final String DESC_DEVICE_RUSAK = "rusak";
+    public static final String DESC_DEVICE_BAGUS = "bagus";
+    public static final String DESC_DEVICE_LAIN_LAIN = "lain-lain";
 
     private TextView tvMainInfofvbi;
     private RecyclerView rvMainfvbi;
     private ProgressBar pbMainfvbi;
     private Button bMainTes2fvbi, bMainTesfvbi;
     private MainCheckAdapter mainCheckAdapter;
-    private Dialog dialogCheckSystem, dialogCheckAccelerometers, dialogCheckProximitys;
+    private Dialog dialogCheckSystem;
     private SensorManager sensorManager;
     private boolean isSensorAccelerometer;
     private boolean isSensorProximity;
@@ -64,6 +72,8 @@ public class MainActivity extends LocalBaseActivity {
             "Layar Sentuh",
             "Mikrofon"};
     private int progressState = 0;
+    private AppDatabase appDatabase;
+    private Dialog dialogCheckResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,16 +93,25 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     private void initComponent() {
-        tvMainInfofvbi = (TextView) findViewById(R.id.tvMainInfo);
+        tvMainInfofvbi = (TextView) findViewById(R.id.tvMainTitle);
         rvMainfvbi = (RecyclerView) findViewById(R.id.rvMain);
         pbMainfvbi = (ProgressBar) findViewById(R.id.pbMain);
-        bMainTesfvbi = (Button) findViewById(R.id.bMainTes);
-        bMainTes2fvbi = (Button) findViewById(R.id.bMainTes2);
+        bMainTesfvbi = (Button) findViewById(R.id.bMainSubmit);
+        bMainTes2fvbi = (Button) findViewById(R.id.bMainSubmit2);
     }
 
     private void initContent() {
 
         dialogStartInformation();
+
+        bMainTes2fvbi.setVisibility(View.GONE);
+
+        //initDb
+        appDatabase = new AppDatabase(MainActivity.this);
+        if (appDatabase.getCountNumberDataDBIp(AppDatabase.TABEL_HARDWARE) > 1) {
+            appDatabase.deleteAllDataIp();
+            Toast.makeText(getApplicationContext(), "delete data", Toast.LENGTH_SHORT).show();
+        }
 
         //initSensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -298,13 +317,16 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     private void resetState() {
-        for (int i = 0; i < stringsCheck.length; i++) {
+        /*for (int i = 0; i < stringsCheck.length; i++) {
             mainCheckAdapter.updateModelAt(i + 1, CheckHardware.UNCHECKING);
         }
         mainCheckAdapter.notifyDataSetChanged();
 
         pbMainfvbi.setProgress(0);
-        bMainTesfvbi.setEnabled(true);
+        bMainTesfvbi.setEnabled(true);*/
+
+        finish();
+        startActivity(getIntent());
     }
 
     private void progresCheck() {
@@ -357,6 +379,7 @@ public class MainActivity extends LocalBaseActivity {
         bPopCheckSystem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                PhoneSystemUtil.scanPhone(MainActivity.this);
                 dialogCheckSystem.dismiss();
                 doCheckConnection();
             }
@@ -385,18 +408,22 @@ public class MainActivity extends LocalBaseActivity {
                     if (HardwareCheckUtil.isBluetoothAvailable()) {
                         checkWifi();
                         connListStatus.add(CheckHardware.CHECK_DONE);
+                        insertDevice("Bluetooth", 1, 1);
                     } else {
                         if (HardwareCheckUtil.isBluetoothOnOff(MainActivity.this, true)) {
                             checkWifi();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Bluetooth", 1, 1);
                         } else {
                             checkWifi();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Bluetooth", 1, 1);
                         }
                     }
                 } else {
                     checkWifi();
                     connListStatus.add(CheckHardware.CHECK_ERROR);
+                    insertDevice("Bluetooth", 0, 1);
                 }
             }
         }, 1000);
@@ -410,18 +437,22 @@ public class MainActivity extends LocalBaseActivity {
                     if (HardwareCheckUtil.isWifiAvailable(MainActivity.this)) {
                         checkGPS();
                         connListStatus.add(CheckHardware.CHECK_DONE);
+                        insertDevice("Wifi", 1, 1);
                     } else {
                         if (HardwareCheckUtil.isWifiOnOff(MainActivity.this)) {
                             checkGPS();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Wifi", 1, 1);
                         } else {
                             checkGPS();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Wifi", 1, 1);
                         }
                     }
                 } else {
                     checkGPS();
                     connListStatus.add(CheckHardware.CHECK_ERROR);
+                    insertDevice("Wifi", 0, 1);
                 }
             }
         }, 1000);
@@ -435,18 +466,22 @@ public class MainActivity extends LocalBaseActivity {
                     if (HardwareCheckUtil.isGPSAvailable(MainActivity.this)) {
                         checkData();
                         connListStatus.add(CheckHardware.CHECK_DONE);
+                        insertDevice("Gps", 1, 1);
                     } else {
                         if (HardwareCheckUtil.isGPSOnOff(MainActivity.this)) {
                             checkData();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Gps", 1, 1);
                         } else {
                             checkData();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Gps", 1, 1);
                         }
                     }
                 } else {
                     checkData();
                     connListStatus.add(CheckHardware.CHECK_ERROR);
+                    insertDevice("Gps", 0, 1);
                 }
             }
         }, 1000);
@@ -461,17 +496,21 @@ public class MainActivity extends LocalBaseActivity {
                         if (HardwareCheckUtil.isMDataAvailable(MainActivity.this)) {
                             checkNFC();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Mobile Network", 1, 1);
                         } else {
                             checkNFC();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("Mobile Network", 1, 1);
                         }
                     } else {
                         checkNFC();
                         connListStatus.add(CheckHardware.CHECK_ERROR);
+                        insertDevice("Mobile Network", 1, 2);
                     }
                 } else {
                     checkNFC();
                     connListStatus.add(CheckHardware.CHECK_ERROR);
+                    insertDevice("Mobile Network", 0, 1);
                 }
             }
         }, 1000);
@@ -486,23 +525,28 @@ public class MainActivity extends LocalBaseActivity {
                         if (HardwareCheckUtil.isNFCOnOff(MainActivity.this, true)) {
                             doCheckSensor();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("nfc", 1, 1);
                         } else {
                             doCheckSensor();
                             connListStatus.add(CheckHardware.CHECK_DONE);
+                            insertDevice("nfc", 1, 1);
                         }
                     } else {
                         doCheckSensor();
                         connListStatus.add(CheckHardware.CHECK_ERROR);
+                        insertDevice("nfc", 1, 2);
                     }
                 } else {
                     doCheckSensor();
                     connListStatus.add(CheckHardware.CHECK_ERROR);
+                    insertDevice("nfc", 0, 1);
                 }
             }
         }, 1000);
     }
 
     //check sensor
+
     private void doCheckSensor() {
         /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(connListStatus);
         if (ListArrayUtil.isIntArrayContainInt(ints, CheckHardware.CHECK_ERROR)) {
@@ -527,21 +571,26 @@ public class MainActivity extends LocalBaseActivity {
                     if (fingerprintManager.hasEnrolledFingerprints()) {
                         sensListStatus.add(CheckHardware.CHECK_DONE);
                         checkProximity();
+                        insertDevice("finger print", 1, 1);
                     } else {
                         sensListStatus.add(CheckHardware.CHECK_DONE);
                         checkProximity();
+                        insertDevice("finger print", 1, 1);
                     }
                 } else {
                     sensListStatus.add(CheckHardware.CHECK_ERROR);
                     checkProximity();
+                    insertDevice("finger print", 1, 2);
                 }
             } else {
                 sensListStatus.add(CheckHardware.CHECK_ERROR);
                 checkProximity();
+                insertDevice("finger print", 0, 1);
             }
         } else {
             sensListStatus.add(CheckHardware.CHECK_ERROR);
             checkProximity();
+            insertDevice("finger print", 0, 1);
         }
         // Hardware whether the device has a Fingerprint sensor.
 
@@ -563,6 +612,7 @@ public class MainActivity extends LocalBaseActivity {
         } else {
             checkAccelerometer();
             sensListStatus.add(CheckHardware.CHECK_ERROR);
+            insertDevice("proximity", 0, 1);
         }
     }
 
@@ -575,10 +625,12 @@ public class MainActivity extends LocalBaseActivity {
             //TODO
             doCheckButton();
             sensListStatus.add(CheckHardware.CHECK_ERROR);
+            insertDevice("accelerometer", 0, 1);
         }
     }
 
     //check Tombol
+
     private void doCheckButton() {
         /*int[] ints = ListArrayUtil.convertListIntegertToIntArray(sensListStatus);
         if (ListArrayUtil.isIntArrayContainInt(ints, CheckHardware.CHECK_ERROR)) {
@@ -602,6 +654,7 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     //check Kamera
+
     private void doCheckCamera() {
         /*mainCheckAdapter.updateModelAt(6, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
@@ -618,6 +671,7 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     //check TouchScreen
+
     private void doCheckScreen() {
         /*mainCheckAdapter.updateModelAt(7, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
@@ -634,6 +688,7 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     //Do check Microphone
+
     private void doCheckMic() {
         /*mainCheckAdapter.updateModelAt(8, CheckHardware.CHECKING);
         mainCheckAdapter.notifyDataSetChanged();
@@ -650,14 +705,39 @@ public class MainActivity extends LocalBaseActivity {
     }
 
     //check Finish
+
     private void doFinish() {
 
+    }
+
+    /**
+     * @param nameDevice
+     * @param statusDevice 0=tidak ada, 1=ada
+     * @param descDevice   0=rusak, 1 bagus
+     */
+    private void insertDevice(String nameDevice, int statusDevice, int descDevice) {
+        String statusDevices = null;
+        String descDevices = null;
+        if (statusDevice == 0) {
+            statusDevices = STATUS_DEVICE_TIDAK_ADA;
+            descDevices = "";
+        } else if (statusDevice == 1) {
+            statusDevices = STATUS_DEVICE_ADA;
+            if (descDevice == 0) {
+                descDevices = DESC_DEVICE_RUSAK;
+            } else if (descDevice == 1) {
+                descDevices = DESC_DEVICE_BAGUS;
+            } else if (descDevice == 2) {
+                descDevices = DESC_DEVICE_LAIN_LAIN;
+            }
+        }
+        appDatabase.insertHardware(new Hardware(nameDevice, statusDevices, descDevices));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == KEY_INTENT_FINGERPRINT) {
+        /*if (requestCode == KEY_INTENT_FINGERPRINT) {
             if (resultCode == RESULT_OK) {
                 checkProximity();
                 sensListStatus.add(CheckHardware.CHECK_DONE);
@@ -665,21 +745,26 @@ public class MainActivity extends LocalBaseActivity {
                 checkProximity();
                 sensListStatus.add(CheckHardware.CHECK_ERROR);
             }
-        } else if (requestCode == KEY_INTENT_PROXIMITY) {
+        } else*/
+        if (requestCode == KEY_INTENT_PROXIMITY) {
             if (resultCode == RESULT_OK) {
                 checkAccelerometer();
                 sensListStatus.add(CheckHardware.CHECK_DONE);
+                insertDevice("proximity", 1, 1);
             } else {
                 checkAccelerometer();
                 sensListStatus.add(CheckHardware.CHECK_ERROR);
+                insertDevice("proximity", 1, 0);
             }
         } else if (requestCode == KEY_INTENT_ACCELEROMETER) {
             if (resultCode == RESULT_OK) {
                 doCheckButton();
                 sensListStatus.add(CheckHardware.CHECK_DONE);
+                insertDevice("accelerometer", 0, 1);
             } else {
                 doCheckButton();
                 sensListStatus.add(CheckHardware.CHECK_ERROR);
+                insertDevice("accelerometer", 1, 0);
             }
         } else if (requestCode == KEY_INTENT_BUTTON) {
             if (resultCode == RESULT_OK) {
@@ -715,10 +800,55 @@ public class MainActivity extends LocalBaseActivity {
             }
         } else if (requestCode == KEY_INTENT_MIC) {
             if (resultCode == RESULT_OK) {
-                resetState();
+                //resetState();
+                dialogCheckResult();
             } else {
-                resetState();
+                //resetState();
+                dialogCheckResult();
             }
         }
+    }
+
+    private void dialogCheckResult() {
+        dialogCheckResults = new Dialog(MainActivity.this);
+        dialogCheckResults.setContentView(R.layout.activity_main);
+        dialogCheckResults.setCanceledOnTouchOutside(false);
+        dialogCheckResults.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        //dialogCheckResults.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        dialogCheckResults.setTitle("KANZANKAZU");
+
+        WindowManager.LayoutParams layoutparams = new WindowManager.LayoutParams();
+        layoutparams.copyFrom(dialogCheckResults.getWindow().getAttributes());
+        layoutparams.width = WindowManager.LayoutParams.MATCH_PARENT;//ukuran lebar layout
+        layoutparams.height = WindowManager.LayoutParams.WRAP_CONTENT;//ukuran tinggi layout
+
+        // set the custom dialogCheckResults components - text, image and button
+        //CheckResults = () dialogCheckResults.findViewById(R.id.);
+        TextView tvMainTitleCheckResults = (TextView) dialogCheckResults.findViewById(R.id.tvMainTitle);
+        RecyclerView rvMainCheckResults = (RecyclerView) dialogCheckResults.findViewById(R.id.rvMain);
+        Button bMainSubmitCheckResults = (Button) dialogCheckResults.findViewById(R.id.bMainSubmit);
+        Button bMainSubmit2CheckResults = (Button) dialogCheckResults.findViewById(R.id.bMainSubmit2);
+        ProgressBar pbMainCheckResults = (ProgressBar) dialogCheckResults.findViewById(R.id.pbMain);
+
+        bMainSubmit2CheckResults.setVisibility(View.GONE);
+        pbMainCheckResults.setVisibility(View.GONE);
+
+        //init
+        //init adapter
+        ArrayList<Hardware> checkHardwares = appDatabase.findAllIp();
+        rvMainCheckResults.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        MainResultAdapter mainResutlAdapter = new MainResultAdapter(this, this, checkHardwares);
+        rvMainCheckResults.setAdapter(mainResutlAdapter);
+
+        bMainSubmitCheckResults.setText("Selesai");
+        bMainSubmitCheckResults.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetState();
+            }
+        });
+
+        dialogCheckResults.show();
+        dialogCheckResults.getWindow().setAttributes(layoutparams);
     }
 }
